@@ -502,7 +502,7 @@
 		<dependency>
 			<groupId>de.flapdoodle.embed</groupId>
 			<artifactId>de.flapdoodle.embed.mongo.packageresolver</artifactId>
-			<version>[1.0.3,1.1.0)</version>
+			<version>[1.0.3,1.0.5]</version>
 		</dependency>
 		<dependency>
 			<groupId>de.flapdoodle</groupId>
