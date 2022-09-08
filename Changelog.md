@@ -1,5 +1,9 @@
 ### Changelog
 
+### 3.4.9
+
+- dep updates
+
 ### 3.4.6
 
 - platform detection override, see [de.flapdoodle.os](https://github.com/flapdoodle-oss/de.flapdoodle.os)
