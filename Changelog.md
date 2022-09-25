@@ -1,5 +1,9 @@
 ### Changelog
 
+### 3.4.10
+
+- mongodb 6 support
+
 ### 3.4.9
 
 - dep updates
