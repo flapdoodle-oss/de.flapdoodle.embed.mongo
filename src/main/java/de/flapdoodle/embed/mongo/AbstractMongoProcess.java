@@ -21,6 +21,7 @@
 package de.flapdoodle.embed.mongo;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
@@ -134,7 +135,9 @@ public abstract class AbstractMongoProcess<T extends MongoCommonConfig, E extend
 
 	protected final boolean sendStopToMongoInstance() {
 		try {
-			return Mongod.sendShutdown(getConfig().net().getServerAddress(), getConfig().net().getPort());
+			InetAddress serverAddress = getConfig().net().getServerAddress();
+			int port = getConfig().net().getPort();
+			return Mongod.sendShutdownLegacy(serverAddress,port) || Mongod.sendShutdown(serverAddress, port);
 		} catch (UnknownHostException e) {
 			LOGGER.error("sendStop", e);
 		}
