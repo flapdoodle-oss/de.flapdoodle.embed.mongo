@@ -1,5 +1,9 @@
 ### Changelog
 
+### 3.4.11
+
+- mongodb shutdown fix
+
 ### 3.4.10
 
 - mongodb 6 support
