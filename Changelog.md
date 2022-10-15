@@ -1,5 +1,9 @@
 ### Changelog
 
+### 3.5.0
+
+- dep updates, minor changes
+
 ### 3.4.11
 
 - mongodb shutdown fix
