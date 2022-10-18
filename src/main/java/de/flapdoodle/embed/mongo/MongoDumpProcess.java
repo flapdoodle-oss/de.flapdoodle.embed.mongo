@@ -22,6 +22,7 @@
 package de.flapdoodle.embed.mongo;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import de.flapdoodle.embed.mongo.config.MongoDumpConfig;
@@ -43,8 +44,8 @@ public class MongoDumpProcess extends AbstractMongoProcess<MongoDumpConfig, Mong
         return MongoDump.getCommandLine(getConfig(), files);
     }
     @Override
-    protected String successMessage() {
-        return "dumped";
+    protected List<String> successMessage() {
+        return Arrays.asList("dumped");
     }
 
     @Override public void stopInternal() {

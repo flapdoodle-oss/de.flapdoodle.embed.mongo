@@ -23,10 +23,12 @@ package de.flapdoodle.embed.mongo;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
+import de.flapdoodle.embed.process.io.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +37,6 @@ import de.flapdoodle.embed.mongo.runtime.Mongod;
 import de.flapdoodle.embed.process.config.RuntimeConfig;
 import de.flapdoodle.embed.process.config.process.ProcessOutput;
 import de.flapdoodle.embed.process.distribution.Distribution;
-import de.flapdoodle.embed.process.io.LogWatchStreamProcessor;
-import de.flapdoodle.embed.process.io.Processors;
-import de.flapdoodle.embed.process.io.StreamToLineProcessor;
 import de.flapdoodle.embed.process.runtime.AbstractProcess;
 import de.flapdoodle.embed.process.runtime.Executable;
 import de.flapdoodle.embed.process.runtime.IStopable;
@@ -58,23 +57,26 @@ public abstract class AbstractMongoProcess<T extends MongoCommonConfig, E extend
 	@Override
 	protected final void onAfterProcessStart(ProcessControl process, RuntimeConfig runtimeConfig) {
 		ProcessOutput outputConfig = runtimeConfig.processOutput();
-		LogWatchStreamProcessor logWatch = new LogWatchStreamProcessor(successMessage(), knownFailureMessages(),
-				StreamToLineProcessor.wrap(outputConfig.output()));
-		Processors.connect(process.getReader(), logWatch);
+//		LogWatchStreamProcessor logWatch = new LogWatchStreamProcessor(successMessage(), knownFailureMessages(),
+//				StreamToLineProcessor.wrap(outputConfig.output()));
+
+		SuccessMessageLineListener logWatch = SuccessMessageLineListener.of(successMessage(), knownFailureMessages(), "error");
+
+		Processors.connect(process.getReader(), new ListeningStreamProcessor(StreamToLineProcessor.wrap(outputConfig.output()), logWatch::inspect));
 		Processors.connect(process.getError(), StreamToLineProcessor.wrap(outputConfig.error()));
 		long startupTimeout = getConfig().timeout().getStartupTimeout();
 		logWatch.waitForResult(startupTimeout);
-		if (logWatch.isInitWithSuccess()) {
-			setProcessId(Mongod.getMongodProcessId(logWatch.getOutput(), -1));
+		if (logWatch.successMessageFound()) {
+			setProcessId(Mongod.getMongodProcessId(logWatch.allLines(), -1));
 		} else {
-			String failureFound = logWatch.getFailureFound();
+			String failureFound = logWatch.errorMessage().orElse(null);
 			if (failureFound==null) {
 				failureFound="\n" +
 						"----------------------\n" +
 						"Hmm.. no failure message.. \n" +
 						"...the cause must be somewhere in the process output\n" +
 						"----------------------\n" +
-						""+logWatch.getOutput();
+						""+logWatch.allLines();
 			}
 			try {
 				// Process could be finished with success here! In this case no need to throw an exception!
@@ -87,18 +89,19 @@ public abstract class AbstractMongoProcess<T extends MongoCommonConfig, E extend
 		}
 	}
 
-	protected String successMessage() {
+	protected List<String> successMessage() {
 	  // old: waiting for connections on port
 		// since 4.4.5: Waiting for connections
-		return "aiting for connections";
+		return Arrays.asList("aiting for connections");
 	}
 	
-	private Set<String> knownFailureMessages() {
-		HashSet<String> ret = new HashSet<>();
-		ret.add("failed errno");
-		ret.add("ERROR:");
-		ret.add("error command line");
-		return ret;
+	private List<String> knownFailureMessages() {
+		return Arrays.asList(
+			"(?<error>failed errno)",
+			"ERROR:(?<error>.*)",
+			"(?<error>error command line)",
+			"(?<error>Address already in use)"
+		);
 	}
 
 	@Override

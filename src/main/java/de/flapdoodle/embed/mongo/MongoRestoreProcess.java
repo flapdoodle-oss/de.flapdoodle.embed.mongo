@@ -22,6 +22,7 @@
 package de.flapdoodle.embed.mongo;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import de.flapdoodle.embed.mongo.config.MongoRestoreConfig;
@@ -43,8 +44,8 @@ public class MongoRestoreProcess extends AbstractMongoProcess<MongoRestoreConfig
         return MongoRestore.getCommandLine(getConfig(), files);
     }
     @Override
-    protected String successMessage() {
-        return "restored";
+    protected List<String> successMessage() {
+        return Arrays.asList("restored");
     }
 
     @Override public void stopInternal() {
