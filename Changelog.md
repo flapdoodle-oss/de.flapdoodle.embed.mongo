@@ -1,5 +1,9 @@
 ### Changelog
 
+### 3.5.2
+
+- dep updates
+
 ### 3.5.0
 
 - dep updates, minor changes
