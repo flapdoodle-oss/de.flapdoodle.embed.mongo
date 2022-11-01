@@ -21,8 +21,6 @@
 package de.flapdoodle.embed.mongo;
 
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.io.File;
 
@@ -85,8 +83,6 @@ public class DownloaderTest {
 			}
 			Thread.sleep(100);
 		}
-		dc = mock(DownloadConfig.class);
-		pl = mock(ProgressListener.class);
 	}
 
 	@After
@@ -103,9 +99,25 @@ public class DownloaderTest {
 	}
 
 	private void initRuntime() {
-		//when(rc.getDefaultfileNaming()).thenReturn(new UUIDTempNaming());
-		when(dc.getDownloadPath()).thenReturn((__) -> "http://localhost:" + LISTEN_PORT + "/");
-		when(dc.getProgressListener()).thenReturn(pl);
+		pl = new ProgressListener() {
+			@Override public void progress(String label, int percent) {
+
+			}
+			@Override public void done(String label) {
+
+			}
+			@Override public void start(String label) {
+
+			}
+			@Override public void info(String label, String message) {
+
+			}
+		};
+
+		dc = DownloadConfig.builder()
+			.downloadPath((__) -> "http://localhost:" + LISTEN_PORT + "/")
+			.progressListener(pl)
+			.build();
 	}
 
 	@Test(expected = Exception.class)
