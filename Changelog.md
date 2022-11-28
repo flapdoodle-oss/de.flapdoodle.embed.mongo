@@ -1,6 +1,6 @@
 ### Changelog
 
-### 3.5.2
+### 3.5.3
 
 - dep updates
 
