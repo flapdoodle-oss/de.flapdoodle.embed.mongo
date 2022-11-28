@@ -491,12 +491,12 @@
 		<dependency>
 			<groupId>de.flapdoodle.embed</groupId>
 			<artifactId>de.flapdoodle.embed.process</artifactId>
-			<version>3.2.7</version>
+			<version>3.2.8</version>
 		</dependency>
 		<dependency>
 			<groupId>de.flapdoodle.embed</groupId>
 			<artifactId>de.flapdoodle.embed.mongo.packageresolver</artifactId>
-			<version>1.0.12</version>
+			<version>1.0.13</version>
 		</dependency>
         <dependency>
             <groupId>org.immutables</groupId>
