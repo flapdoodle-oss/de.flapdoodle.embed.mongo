@@ -68,12 +68,10 @@ There is a report on backward binary compatibility and API changes for the libra
 
 ### Maven
 
-Snapshots (Repository http://oss.sonatype.org/content/repositories/snapshots)
-
 	<dependency>
 		<groupId>de.flapdoodle.embed</groupId>
 		<artifactId>de.flapdoodle.embed.mongo</artifactId>
-		<version>3.5.4-SNAPSHOT</version>
+		<version>3.5.4</version>
 	</dependency>
 
 ### Gradle
