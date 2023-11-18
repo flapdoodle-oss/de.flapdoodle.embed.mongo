@@ -3,7 +3,7 @@
 ```java
 
 try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance().start(Version.Main.PRODUCTION)) {
-  try (MongoClient mongo = new MongoClient(serverAddress(running.current().getServerAddress()))) {
+  try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
     MongoDatabase db = mongo.getDatabase("test");
     MongoCollection<Document> col = db.getCollection("testCol");
     col.insertOne(new Document("testDoc", new Date()));
@@ -117,7 +117,7 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> runningMongod = mongod.
 
   ServerAddress serverAddress = runningMongod.current().getServerAddress();
 
-  try (MongoClient mongo = new MongoClient(serverAddress(serverAddress))) {
+  try (MongoClient mongo = MongoClientF.client(serverAddress(serverAddress))) {
     mongo.getDatabase("admin").runCommand(new Document("replSetInitiate", new Document()));
   }
 
@@ -131,7 +131,7 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> runningMongod = mongod.
   };
 
   try (TransitionWalker.ReachedState<RunningMongosProcess> runningMongos = mongos.start(version)) {
-    try (MongoClient mongo = new MongoClient(serverAddress(runningMongos.current().getServerAddress()))) {
+    try (MongoClient mongo = MongoClientF.client(serverAddress(runningMongos.current().getServerAddress()))) {
       assertThat(mongo.listDatabaseNames()).contains("admin", "config");
     }
   }
@@ -190,20 +190,18 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instan
       .initializedWith(MongodArguments.defaults().withAuth(true)))
   .start(Version.Main.PRODUCTION, withRunningMongod)) {
 
-  try (MongoClient mongo = new MongoClient(
+  try (MongoClient mongo = MongoClientF.client(
     serverAddress(running.current().getServerAddress()),
-    MongoCredential.createCredential("i-am-admin", "admin", "admin-password".toCharArray()),
-    MongoClientOptions.builder().build())) {
+    MongoCredential.createCredential("i-am-admin", "admin", "admin-password".toCharArray()))) {
 
     MongoDatabase db = mongo.getDatabase("test-db");
     MongoCollection<Document> col = db.getCollection("test-collection");
     col.insertOne(new Document("testDoc", new Date()));
   }
 
-  try (MongoClient mongo = new MongoClient(
+  try (MongoClient mongo = MongoClientF.client(
     serverAddress(running.current().getServerAddress()),
-    MongoCredential.createCredential("read-only", "test-db", "user-password".toCharArray()),
-    MongoClientOptions.builder().build())) {
+    MongoCredential.createCredential("read-only", "test-db", "user-password".toCharArray()))) {
 
     MongoDatabase db = mongo.getDatabase("test-db");
     MongoCollection<Document> col = db.getCollection("test-collection");
@@ -267,7 +265,7 @@ public abstract class EnableAuthentication {
           final ServerAddress address = serverAddress(running);
 
         // Create admin user.
-        try (final MongoClient clientWithoutCredentials = new MongoClient(address)) {
+        try (final MongoClient clientWithoutCredentials = MongoClientF.client(address)) {
           runCommand(
             clientWithoutCredentials.getDatabase("admin"),
             commandCreateUser(adminUser(), adminPassword(), Arrays.asList("root"))
@@ -278,7 +276,7 @@ public abstract class EnableAuthentication {
           MongoCredential.createCredential(adminUser(), "admin", adminPassword().toCharArray());
 
         // create roles and users
-        try (final MongoClient clientAdmin = new MongoClient(address, credentialAdmin, MongoClientOptions.builder().build())) {
+        try (final MongoClient clientAdmin = MongoClientF.client(address, credentialAdmin)) {
           entries().forEach(entry -> {
             if (entry instanceof Role) {
               Role role = (Role) entry;
@@ -300,7 +298,7 @@ public abstract class EnableAuthentication {
         final MongoCredential credentialAdmin =
           MongoCredential.createCredential(adminUser(), "admin", adminPassword().toCharArray());
 
-        try (final MongoClient clientAdmin = new MongoClient(address, credentialAdmin, MongoClientOptions.builder().build())) {
+        try (final MongoClient clientAdmin = MongoClientF.client(address, credentialAdmin)) {
           try {
             // if success there will be no answer, the connection just closes..
             runCommand(

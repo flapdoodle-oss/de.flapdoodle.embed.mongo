@@ -21,35 +21,24 @@
 package de.flapdoodle.embed.mongo.doc;
 
 import com.google.common.io.Resources;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoCredential;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import de.flapdoodle.embed.mongo.MongoClientF;
 import de.flapdoodle.embed.mongo.commands.MongoImportArguments;
 import de.flapdoodle.embed.mongo.commands.MongodArguments;
 import de.flapdoodle.embed.mongo.commands.MongosArguments;
 import de.flapdoodle.embed.mongo.commands.ServerAddress;
-import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.config.Storage;
 import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.examples.EnableAuthentication;
-import de.flapdoodle.embed.mongo.examples.FileStreamProcessor;
 import de.flapdoodle.embed.mongo.transitions.*;
 import de.flapdoodle.embed.mongo.types.DatabaseDir;
 import de.flapdoodle.embed.mongo.types.DistributionBaseUrl;
 import de.flapdoodle.embed.mongo.util.FileUtils;
-import de.flapdoodle.embed.process.config.DownloadConfig;
-import de.flapdoodle.embed.process.config.TimeoutConfig;
-import de.flapdoodle.embed.process.io.ProcessOutput;
-import de.flapdoodle.embed.process.io.Processors;
-import de.flapdoodle.embed.process.io.directories.PersistentDir;
-import de.flapdoodle.embed.process.net.DownloadToPath;
-import de.flapdoodle.embed.process.net.HttpProxyFactory;
-import de.flapdoodle.embed.process.runtime.Network;
-import de.flapdoodle.embed.process.transitions.DownloadPackage;
 import de.flapdoodle.reverse.*;
 import de.flapdoodle.reverse.transitions.Derive;
 import de.flapdoodle.reverse.transitions.Start;
@@ -63,13 +52,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.Proxy;
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.Date;
-import java.util.Optional;
 
 import static de.flapdoodle.embed.mongo.ServerAddressMapping.serverAddress;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -85,7 +69,7 @@ public class HowToDocTest {
 		recording.begin();
 
 		try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance().start(Version.Main.PRODUCTION)) {
-			try (MongoClient mongo = new MongoClient(serverAddress(running.current().getServerAddress()))) {
+			try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
 				MongoDatabase db = mongo.getDatabase("test");
 				MongoCollection<Document> col = db.getCollection("testCol");
 				col.insertOne(new Document("testDoc", new Date()));
@@ -216,7 +200,7 @@ public class HowToDocTest {
 
 			ServerAddress serverAddress = runningMongod.current().getServerAddress();
 
-			try (MongoClient mongo = new MongoClient(serverAddress(serverAddress))) {
+			try (MongoClient mongo = MongoClientF.client(serverAddress(serverAddress))) {
 				mongo.getDatabase("admin").runCommand(new Document("replSetInitiate", new Document()));
 			}
 
@@ -230,7 +214,7 @@ public class HowToDocTest {
 			};
 
 			try (TransitionWalker.ReachedState<RunningMongosProcess> runningMongos = mongos.start(version)) {
-				try (MongoClient mongo = new MongoClient(serverAddress(runningMongos.current().getServerAddress()))) {
+				try (MongoClient mongo = MongoClientF.client(serverAddress(runningMongos.current().getServerAddress()))) {
 					assertThat(mongo.listDatabaseNames()).contains("admin", "config");
 				}
 			}
@@ -295,20 +279,18 @@ public class HowToDocTest {
 					.initializedWith(MongodArguments.defaults().withAuth(true)))
 			.start(Version.Main.PRODUCTION, withRunningMongod)) {
 
-			try (MongoClient mongo = new MongoClient(
+			try (MongoClient mongo = MongoClientF.client(
 				serverAddress(running.current().getServerAddress()),
-				MongoCredential.createCredential("i-am-admin", "admin", "admin-password".toCharArray()),
-				MongoClientOptions.builder().build())) {
+				MongoCredential.createCredential("i-am-admin", "admin", "admin-password".toCharArray()))) {
 
 				MongoDatabase db = mongo.getDatabase("test-db");
 				MongoCollection<Document> col = db.getCollection("test-collection");
 				col.insertOne(new Document("testDoc", new Date()));
 			}
 
-			try (MongoClient mongo = new MongoClient(
+			try (MongoClient mongo = MongoClientF.client(
 				serverAddress(running.current().getServerAddress()),
-				MongoCredential.createCredential("read-only", "test-db", "user-password".toCharArray()),
-				MongoClientOptions.builder().build())) {
+				MongoCredential.createCredential("read-only", "test-db", "user-password".toCharArray()))) {
 
 				MongoDatabase db = mongo.getDatabase("test-db");
 				MongoCollection<Document> col = db.getCollection("test-collection");
@@ -325,7 +307,7 @@ public class HowToDocTest {
 
 
 	protected static void assertRunningMongoDB(TransitionWalker.ReachedState<RunningMongodProcess> running) {
-		try (MongoClient mongo = new MongoClient(serverAddress(running.current().getServerAddress()))) {
+		try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
 			MongoDatabase db = mongo.getDatabase("test");
 			MongoCollection<Document> col = db.getCollection("testCol");
 			col.insertOne(new Document("testDoc", new Date()));

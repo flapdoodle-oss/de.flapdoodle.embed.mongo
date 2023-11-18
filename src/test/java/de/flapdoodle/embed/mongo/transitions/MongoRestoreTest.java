@@ -22,10 +22,11 @@ package de.flapdoodle.embed.mongo.transitions;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import de.flapdoodle.embed.mongo.MongoClientF;
 import de.flapdoodle.embed.mongo.commands.*;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.reverse.StateID;
@@ -156,7 +157,7 @@ class MongoRestoreTest {
 				System.out.println("-------------------");
 			}
 
-			try (MongoClient mongo = new MongoClient(serverAddress(runningMongoD.current().getServerAddress()))) {
+			try (MongoClient mongo = MongoClientF.client(serverAddress(runningMongoD.current().getServerAddress()))) {
 				MongoDatabase db = mongo.getDatabase("restoredb");
 				MongoCollection<Document> col = db.getCollection("sample");
 
@@ -202,7 +203,7 @@ class MongoRestoreTest {
 					.isEqualTo(0);
 			}
 
-			try (MongoClient mongo = new MongoClient(serverAddress(runningMongoD.current().getServerAddress()))) {
+			try (MongoClient mongo = MongoClientF.client(serverAddress(runningMongoD.current().getServerAddress()))) {
 				MongoDatabase db = mongo.getDatabase("restoredb");
 				MongoCollection<Document> col = db.getCollection("sample");
 
@@ -259,7 +260,7 @@ class MongoRestoreTest {
 
 	private static Consumer<ServerAddress> onTestCollection(Consumer<MongoCollection<Document>> onCollection) {
 		return serverAddress -> {
-			try (MongoClient mongo = new MongoClient(serverAddress(serverAddress))) {
+			try (MongoClient mongo = MongoClientF.client(serverAddress(serverAddress))) {
 				MongoDatabase db = mongo.getDatabase("testdb");
 				MongoCollection<Document> col = db.getCollection("testcol");
 

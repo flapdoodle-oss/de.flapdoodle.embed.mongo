@@ -20,9 +20,10 @@
  */
 package de.flapdoodle.embed.mongo.transitions;
 
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import de.flapdoodle.embed.mongo.MongoClientF;
 import de.flapdoodle.embed.mongo.Versions;
 import de.flapdoodle.embed.mongo.commands.ServerAddress;
 import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion;
@@ -30,7 +31,6 @@ import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.process.distribution.Distribution;
 import de.flapdoodle.os.CPUType;
 import de.flapdoodle.os.CommonOS;
-import de.flapdoodle.os.OS;
 import de.flapdoodle.os.OSType;
 import de.flapdoodle.reverse.TransitionWalker;
 import org.bson.Document;
@@ -99,7 +99,7 @@ public class MongodRunAllVersionsTest {
 
 	@Test
 	public void testInsert1() throws UnknownHostException {
-		try (MongoClient mongo = new MongoClient(serverAddress(running.current().getServerAddress()))) {
+		try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
 			MongoDatabase db = mongo.getDatabase("test");
 			db.createCollection("testCol");
 			MongoCollection<Document> col = db.getCollection("testCol");
@@ -109,7 +109,7 @@ public class MongodRunAllVersionsTest {
 
 	@Test
 	public void testInsert2() throws UnknownHostException {
-		try (MongoClient mongo = new MongoClient(serverAddress(running.current().getServerAddress()))) {
+		try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
 			MongoDatabase db = mongo.getDatabase("test");
 			db.createCollection("testCol");
 			MongoCollection<Document> col = db.getCollection("testCol");

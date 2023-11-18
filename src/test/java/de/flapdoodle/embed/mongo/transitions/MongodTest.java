@@ -21,12 +21,10 @@
 package de.flapdoodle.embed.mongo.transitions;
 
 import com.google.common.collect.ImmutableMap;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import de.flapdoodle.embed.mongo.MongoClientF;
 import de.flapdoodle.embed.mongo.Versions;
 import de.flapdoodle.embed.mongo.commands.MongodArguments;
 import de.flapdoodle.embed.mongo.config.Net;
@@ -129,10 +127,10 @@ class MongodTest {
 		for (int i = 0; i < loops; i++) {
 			logger.info("Loop: {}", i);
 			try (TransitionWalker.ReachedState<RunningMongodProcess> runningMongod = mongod.start(Version.Main.PRODUCTION)) {
-				try (MongoClient mongo = new MongoClient(serverAddress(runningMongod.current().getServerAddress()))) {
-					DB db = mongo.getDB("test");
-					DBCollection col = db.createCollection("testCol", new BasicDBObject());
-					col.save(new BasicDBObject("testDoc", new Date()));
+				try (MongoClient mongo = MongoClientF.client(serverAddress(runningMongod.current().getServerAddress()))) {
+					MongoDatabase db = mongo.getDatabase("test");
+					MongoCollection<Document> col = db.getCollection("testCol");
+					col.insertOne(new Document("testDoc", new Date()));
 				}
 			}
 		}
@@ -189,10 +187,10 @@ class MongodTest {
 		try (TransitionWalker.ReachedState<RunningMongodProcess> runningMongod = mongod.transitions(Version.Main.PRODUCTION)
 			.walker()
 			.initState(StateID.of(RunningMongodProcess.class), listener)) {
-			try (MongoClient mongo = new MongoClient(serverAddress(runningMongod.current().getServerAddress()))) {
-				DB db = mongo.getDB("test");
-				DBCollection col = db.createCollection("testCol", new BasicDBObject());
-				col.save(new BasicDBObject("testDoc", new Date()));
+			try (MongoClient mongo = MongoClientF.client(serverAddress(runningMongod.current().getServerAddress()))) {
+				MongoDatabase db = mongo.getDatabase("test");
+				MongoCollection<Document> col = db.getCollection("testCol");
+				col.insertOne(new Document("testDoc", new Date()));
 			}
 		}
 
@@ -227,14 +225,14 @@ class MongodTest {
 		try (TransitionWalker.ReachedState<RunningMongodProcess> outerMongod = Mongod.instance().start(Version.Main.PRODUCTION)) {
 			try (TransitionWalker.ReachedState<RunningMongodProcess> innerMongod = Mongod.instance().start(Version.Main.PRODUCTION)) {
 
-				try (MongoClient mongo = new MongoClient(serverAddress(innerMongod.current().getServerAddress()))) {
+				try (MongoClient mongo = MongoClientF.client(serverAddress(innerMongod.current().getServerAddress()))) {
 					MongoDatabase db = mongo.getDatabase("test");
 					db.createCollection("testCol");
 					MongoCollection<Document> col = db.getCollection("testColl");
 					col.insertOne(new Document("testDoc", new Date()));
 				}
 
-				try (MongoClient mongo = new MongoClient(serverAddress(outerMongod.current().getServerAddress()))) {
+				try (MongoClient mongo = MongoClientF.client(serverAddress(outerMongod.current().getServerAddress()))) {
 					MongoDatabase db = mongo.getDatabase("test");
 					db.createCollection("testCol");
 					MongoCollection<Document> col = db.getCollection("testColl");
@@ -278,7 +276,7 @@ class MongodTest {
 				return Start.to(Net.class).initializedWith(net);
 			}
 		}.start(Version.V3_6_0)) {
-			try (MongoClient mongo = new MongoClient(serverAddress(running.current().getServerAddress()))) {
+			try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
 				MongoDatabase db = mongo.getDatabase("test");
 				MongoCollection<Document> col = db.getCollection("testCol");
 				col.insertOne(new Document("testDoc", new Date()));
@@ -293,7 +291,7 @@ class MongodTest {
 		try (TransitionWalker.ReachedState<RunningMongodProcess> outerMongod = Mongod.instance()
 			.withNet(Start.to(Net.class).initializedWith(Net.of("localhost", 23456, Network.localhostIsIPv6())))
 			.start(version)) {
-			try (MongoClient mongo = new MongoClient(serverAddress(outerMongod.current().getServerAddress()))) {
+			try (MongoClient mongo = MongoClientF.client(serverAddress(outerMongod.current().getServerAddress()))) {
 				MongoDatabase db = mongo.getDatabase("test");
 				MongoCollection<Document> col = db.getCollection("testCol");
 				col.insertOne(new Document("testDoc", new Date()));

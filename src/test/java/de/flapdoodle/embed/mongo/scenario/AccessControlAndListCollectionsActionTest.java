@@ -21,8 +21,10 @@
 package de.flapdoodle.embed.mongo.scenario;
 
 import com.mongodb.*;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import de.flapdoodle.checks.Preconditions;
+import de.flapdoodle.embed.mongo.MongoClientF;
 import de.flapdoodle.embed.mongo.commands.MongodArguments;
 import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
@@ -269,11 +271,11 @@ public class AccessControlAndListCollectionsActionTest {
 	}
 
 	private static MongoClient mongoClient(ServerAddress serverAddress) {
-		return new MongoClient(serverAddress);
+		return MongoClientF.client(serverAddress);
 	}
 
 	private static MongoClient mongoClient(ServerAddress serverAddress, MongoCredential credential) {
-		return new MongoClient(serverAddress, credential, MongoClientOptions.builder().build());
+		return MongoClientF.client(serverAddress, credential);
 	}
 
 	private static ServerAddress getServerAddress(

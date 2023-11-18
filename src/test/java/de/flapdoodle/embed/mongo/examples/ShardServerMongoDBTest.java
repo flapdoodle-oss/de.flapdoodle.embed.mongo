@@ -20,7 +20,8 @@
  */
 package de.flapdoodle.embed.mongo.examples;
 
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
+import de.flapdoodle.embed.mongo.MongoClientF;
 import de.flapdoodle.embed.mongo.commands.MongodArguments;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.transitions.Mongod;
@@ -46,7 +47,7 @@ public class ShardServerMongoDBTest {
             .withIsShardServer(true)))
           .walker()
           .initState(StateID.of(RunningMongodProcess.class))) {
-            try (MongoClient mongo = new MongoClient(serverAddress(running.current().getServerAddress()))) {
+            try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
                 List<String> arguments = mongo.getDatabase("admin")
                   .runCommand(new Document("getCmdLineOpts", 1))
                   .getList("argv", String.class);

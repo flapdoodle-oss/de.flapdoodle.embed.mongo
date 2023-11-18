@@ -8,7 +8,7 @@ Transitions transitions = Mongod.instance().transitions(Version.Main.PRODUCTION)
 try (TransitionWalker.ReachedState<RunningMongodProcess> running = transitions.walker()
   .initState(StateID.of(RunningMongodProcess.class))) {
 
-  try (MongoClient mongo = new MongoClient(serverAddress(running.current().getServerAddress()))) {
+  try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
 ...
 
   }
@@ -29,7 +29,7 @@ Transitions transitions = Mongod.instance()
 try (TransitionWalker.ReachedState<RunningMongodProcess> running = transitions.walker()
   .initState(StateID.of(RunningMongodProcess.class))) {
 
-  try (MongoClient mongo = new MongoClient(serverAddress(running.current().getServerAddress()))) {
+  try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
     MongoDatabase db = mongo.getDatabase("test");
     MongoCollection<Document> col = db.getCollection("testCol");
     col.insertOne(new Document("testDoc", new Date()));
@@ -40,7 +40,7 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> running = transitions.w
 try (TransitionWalker.ReachedState<RunningMongodProcess> running = transitions.walker()
   .initState(StateID.of(RunningMongodProcess.class))) {
 
-  try (MongoClient mongo = new MongoClient(serverAddress(running.current().getServerAddress()))) {
+  try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
     MongoDatabase db = mongo.getDatabase("test");
     MongoCollection<Document> col = db.getCollection("testCol");
     assertThat(col.countDocuments()).isEqualTo(1L);
@@ -79,7 +79,7 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> mongoD = Mongod.instanc
 
   }
 
-  try (MongoClient mongo = new MongoClient(serverAddress(mongoD.current().getServerAddress()))) {
+  try (MongoClient mongo = MongoClientF.client(serverAddress(mongoD.current().getServerAddress()))) {
     MongoDatabase db = mongo.getDatabase("importDatabase");
     MongoCollection<Document> col = db.getCollection("importCollection");
 
@@ -123,7 +123,7 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> mongoD = mongoImportTra
 
   }
 
-  try (MongoClient mongo = new MongoClient(serverAddress(mongoD.current().getServerAddress()))) {
+  try (MongoClient mongo = MongoClientF.client(serverAddress(mongoD.current().getServerAddress()))) {
     MongoDatabase db = mongo.getDatabase("importDatabase");
     MongoCollection<Document> col = db.getCollection("importCollection");
 

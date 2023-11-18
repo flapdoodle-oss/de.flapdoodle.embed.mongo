@@ -22,11 +22,11 @@ package de.flapdoodle.embed.mongo.examples;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
+import com.mongodb.client.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
+import de.flapdoodle.embed.mongo.MongoClientF;
 import de.flapdoodle.embed.mongo.commands.MongodArguments;
 import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
@@ -62,7 +62,7 @@ public class MongodAuthTest {
 		try (final TransitionWalker.ReachedState<RunningMongodProcess> running = startMongod(true)) {
 			final ServerAddress address = getServerAddress(running);
 
-			try (final MongoClient clientWithoutCredentials = new MongoClient(address)) {
+			try (final MongoClient clientWithoutCredentials = MongoClientF.client(address)) {
 				// do nothing
 			}
 		}
@@ -85,7 +85,7 @@ public class MongodAuthTest {
 			final MongoCredential credentialAdmin =
 				MongoCredential.createCredential(USERNAME_ADMIN, DB_ADMIN, PASSWORD_ADMIN.toCharArray());
 
-			try (final MongoClient clientAdmin = new MongoClient(address, credentialAdmin, MongoClientOptions.builder().build())) {
+			try (final MongoClient clientAdmin = MongoClientF.client(address, credentialAdmin)) {
 				final MongoDatabase db = clientAdmin.getDatabase(DB_TEST);
 				db.getCollection(COLL_TEST)
 					.insertOne(new Document(ImmutableMap.of("key", "value")));
@@ -95,7 +95,7 @@ public class MongodAuthTest {
 				MongoCredential.createCredential(USERNAME_NORMAL_USER, DB_TEST, PASSWORD_NORMAL_USER.toCharArray());
 
 			try (final MongoClient clientNormalUser =
-				new MongoClient(address, credentialNormalUser, MongoClientOptions.builder().build())) {
+				MongoClientF.client(address, credentialNormalUser)) {
 				final ArrayList<String> actual = clientNormalUser.getDatabase(DB_TEST).listCollectionNames().into(new ArrayList<>());
 				assertThat(actual).containsExactly(COLL_TEST);
 			}
@@ -122,7 +122,7 @@ public class MongodAuthTest {
 			final MongoCredential credentialAdmin =
 				MongoCredential.createCredential(USERNAME_ADMIN, DB_ADMIN, PASSWORD_ADMIN.toCharArray());
 
-			try (final MongoClient clientAdmin = new MongoClient(address, credentialAdmin, MongoClientOptions.builder().build())) {
+			try (final MongoClient clientAdmin = MongoClientF.client(address, credentialAdmin)) {
 				final MongoDatabase db = clientAdmin.getDatabase(DB_TEST);
 //				// Create normal user and grant them the builtin "readAnyDatabase" role.
 //				// FIXME This unexpectedly fails with "No role named readAnyDatabase@test-db".
@@ -135,7 +135,7 @@ public class MongodAuthTest {
 				MongoCredential.createCredential(USERNAME_NORMAL_USER, DB_TEST, PASSWORD_NORMAL_USER.toCharArray());
 
 			try (final MongoClient clientNormalUser =
-				new MongoClient(address, credentialNormalUser, MongoClientOptions.builder().build())) {
+				MongoClientF.client(address, credentialNormalUser)) {
 				final ArrayList<String> actual = clientNormalUser.getDatabase(DB_TEST).listCollectionNames().into(new ArrayList<>());
 				assertThat(actual)
 					.containsExactly(COLL_TEST);
@@ -157,7 +157,7 @@ public class MongodAuthTest {
 			final MongoCredential credentialAdmin =
 				MongoCredential.createCredential(USERNAME_ADMIN, DB_ADMIN, PASSWORD_ADMIN.toCharArray());
 
-			try (final MongoClient clientAdmin = new MongoClient(address, credentialAdmin, MongoClientOptions.builder().build())) {
+			try (final MongoClient clientAdmin = MongoClientF.client(address, credentialAdmin)) {
 				final MongoDatabase db = clientAdmin.getDatabase(DB_TEST);
 				db.getCollection(COLL_TEST).insertOne(new Document(ImmutableMap.of("key", "value")));
 			}
@@ -166,7 +166,7 @@ public class MongodAuthTest {
 				MongoCredential.createCredential(USERNAME_NORMAL_USER, DB_TEST, PASSWORD_NORMAL_USER.toCharArray());
 			
 			try (final MongoClient clientNormalUser =
-				new MongoClient(address, credentialNormalUser, MongoClientOptions.builder().build())) {
+				MongoClientF.client(address, credentialNormalUser)) {
 				final List<String> expected = Lists.newArrayList(COLL_TEST);
 				final ArrayList<String> actual = clientNormalUser.getDatabase(DB_TEST).listCollectionNames().into(new ArrayList<>());
 				Assertions.assertIterableEquals(expected, actual);
