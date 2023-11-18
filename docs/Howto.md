@@ -3,7 +3,8 @@
 ```java
 
 try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance().start(Version.Main.PRODUCTION)) {
-  try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
+  com.mongodb.ServerAddress serverAddress = serverAddress(running.current().getServerAddress());
+  try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
     MongoDatabase db = mongo.getDatabase("test");
     MongoCollection<Document> col = db.getCollection("testCol");
     col.insertOne(new Document("testDoc", new Date()));
@@ -117,7 +118,8 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> runningMongod = mongod.
 
   ServerAddress serverAddress = runningMongod.current().getServerAddress();
 
-  try (MongoClient mongo = MongoClientF.client(serverAddress(serverAddress))) {
+  com.mongodb.ServerAddress serverAddress2 = serverAddress(serverAddress);
+  try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress2)) {
     mongo.getDatabase("admin").runCommand(new Document("replSetInitiate", new Document()));
   }
 
@@ -131,7 +133,8 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> runningMongod = mongod.
   };
 
   try (TransitionWalker.ReachedState<RunningMongosProcess> runningMongos = mongos.start(version)) {
-    try (MongoClient mongo = MongoClientF.client(serverAddress(runningMongos.current().getServerAddress()))) {
+    com.mongodb.ServerAddress serverAddress1 = serverAddress(runningMongos.current().getServerAddress());
+    try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress1)) {
       assertThat(mongo.listDatabaseNames()).contains("admin", "config");
     }
   }
@@ -190,7 +193,7 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instan
       .initializedWith(MongodArguments.defaults().withAuth(true)))
   .start(Version.Main.PRODUCTION, withRunningMongod)) {
 
-  try (MongoClient mongo = MongoClientF.client(
+  try (MongoClient mongo = mongoClient(
     serverAddress(running.current().getServerAddress()),
     MongoCredential.createCredential("i-am-admin", "admin", "admin-password".toCharArray()))) {
 
@@ -199,7 +202,7 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instan
     col.insertOne(new Document("testDoc", new Date()));
   }
 
-  try (MongoClient mongo = MongoClientF.client(
+  try (MongoClient mongo = mongoClient(
     serverAddress(running.current().getServerAddress()),
     MongoCredential.createCredential("read-only", "test-db", "user-password".toCharArray()))) {
 
@@ -265,7 +268,7 @@ public abstract class EnableAuthentication {
           final ServerAddress address = serverAddress(running);
 
         // Create admin user.
-        try (final MongoClient clientWithoutCredentials = MongoClientF.client(address)) {
+        try (final MongoClient clientWithoutCredentials = MongoClients.create("mongodb://" + address)) {
           runCommand(
             clientWithoutCredentials.getDatabase("admin"),
             commandCreateUser(adminUser(), adminPassword(), Arrays.asList("root"))
@@ -276,7 +279,7 @@ public abstract class EnableAuthentication {
           MongoCredential.createCredential(adminUser(), "admin", adminPassword().toCharArray());
 
         // create roles and users
-        try (final MongoClient clientAdmin = MongoClientF.client(address, credentialAdmin)) {
+        try (final MongoClient clientAdmin = mongoClient(address, credentialAdmin)) {
           entries().forEach(entry -> {
             if (entry instanceof Role) {
               Role role = (Role) entry;
@@ -298,7 +301,7 @@ public abstract class EnableAuthentication {
         final MongoCredential credentialAdmin =
           MongoCredential.createCredential(adminUser(), "admin", adminPassword().toCharArray());
 
-        try (final MongoClient clientAdmin = MongoClientF.client(address, credentialAdmin)) {
+        try (final MongoClient clientAdmin = mongoClient(address, credentialAdmin)) {
           try {
             // if success there will be no answer, the connection just closes..
             runCommand(

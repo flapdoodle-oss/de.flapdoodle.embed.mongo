@@ -20,10 +20,11 @@
  */
 package de.flapdoodle.embed.mongo.doc;
 
+import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import de.flapdoodle.embed.mongo.MongoClientF;
 import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.examples.FileStreamProcessor;
@@ -257,7 +258,8 @@ public class CustomizationsTest {
 		};
 
 		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
-			try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
+			ServerAddress serverAddress = serverAddress(running.current().getServerAddress());
+			try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
 				MongoDatabase db = mongo.getDatabase("test");
 				MongoCollection<Document> col = db.getCollection("testCol");
 				col.insertOne(new Document("testDoc", new Date()));

@@ -8,7 +8,8 @@ Transitions transitions = Mongod.instance().transitions(Version.Main.PRODUCTION)
 try (TransitionWalker.ReachedState<RunningMongodProcess> running = transitions.walker()
   .initState(StateID.of(RunningMongodProcess.class))) {
 
-  try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
+  com.mongodb.ServerAddress serverAddress = serverAddress(running.current().getServerAddress());
+  try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
 ...
 
   }
@@ -29,7 +30,8 @@ Transitions transitions = Mongod.instance()
 try (TransitionWalker.ReachedState<RunningMongodProcess> running = transitions.walker()
   .initState(StateID.of(RunningMongodProcess.class))) {
 
-  try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
+  com.mongodb.ServerAddress serverAddress = serverAddress(running.current().getServerAddress());
+  try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
     MongoDatabase db = mongo.getDatabase("test");
     MongoCollection<Document> col = db.getCollection("testCol");
     col.insertOne(new Document("testDoc", new Date()));
@@ -40,7 +42,8 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> running = transitions.w
 try (TransitionWalker.ReachedState<RunningMongodProcess> running = transitions.walker()
   .initState(StateID.of(RunningMongodProcess.class))) {
 
-  try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
+  com.mongodb.ServerAddress serverAddress = serverAddress(running.current().getServerAddress());
+  try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
     MongoDatabase db = mongo.getDatabase("test");
     MongoCollection<Document> col = db.getCollection("testCol");
     assertThat(col.countDocuments()).isEqualTo(1L);
@@ -79,7 +82,8 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> mongoD = Mongod.instanc
 
   }
 
-  try (MongoClient mongo = MongoClientF.client(serverAddress(mongoD.current().getServerAddress()))) {
+  com.mongodb.ServerAddress serverAddress = serverAddress(mongoD.current().getServerAddress());
+  try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
     MongoDatabase db = mongo.getDatabase("importDatabase");
     MongoCollection<Document> col = db.getCollection("importCollection");
 
@@ -123,7 +127,8 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> mongoD = mongoImportTra
 
   }
 
-  try (MongoClient mongo = MongoClientF.client(serverAddress(mongoD.current().getServerAddress()))) {
+  com.mongodb.ServerAddress serverAddress = serverAddress(mongoD.current().getServerAddress());
+  try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
     MongoDatabase db = mongo.getDatabase("importDatabase");
     MongoCollection<Document> col = db.getCollection("importCollection");
 

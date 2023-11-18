@@ -7,16 +7,9 @@ import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
-public class MongoClientF {
+public class MongoClientUtil {
 
-	public static MongoClient client(ServerAddress serverAddress) {
-		return MongoClients.create("mongodb://"+serverAddress);
-//		return MongoClients.create(MongoClientSettings.builder()
-//			.applyConnectionString(new ConnectionString("mongodb://"+serverAddress))
-//			.build());
-	}
-
-	public static MongoClient client(ServerAddress serverAddress, MongoCredential credential) {
+	public static MongoClient mongoClient(ServerAddress serverAddress, MongoCredential credential) {
 		return MongoClients.create(MongoClientSettings.builder()
 			.applyConnectionString(new ConnectionString("mongodb://"+serverAddress))
 			.credential(credential)

@@ -20,8 +20,9 @@
  */
 package de.flapdoodle.embed.mongo.examples;
 
+import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
-import de.flapdoodle.embed.mongo.MongoClientF;
+import com.mongodb.client.MongoClients;
 import de.flapdoodle.embed.mongo.commands.MongodArguments;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.transitions.Mongod;
@@ -47,7 +48,8 @@ public class ConfigServerMongoDBTest {
 				.withIsConfigServer(true)))
 			.walker()
 			.initState(StateID.of(RunningMongodProcess.class))) {
-			try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
+			ServerAddress serverAddress = serverAddress(running.current().getServerAddress());
+			try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
 				List<String> arguments = mongo.getDatabase("admin")
 					.runCommand(new Document("getCmdLineOpts", 1))
 					.getList("argv", String.class);

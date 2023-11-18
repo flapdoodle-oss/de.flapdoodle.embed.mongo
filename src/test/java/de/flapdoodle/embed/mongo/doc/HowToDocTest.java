@@ -24,9 +24,10 @@ import com.google.common.io.Resources;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import de.flapdoodle.embed.mongo.MongoClientF;
+import de.flapdoodle.embed.mongo.MongoClientUtil;
 import de.flapdoodle.embed.mongo.commands.MongoImportArguments;
 import de.flapdoodle.embed.mongo.commands.MongodArguments;
 import de.flapdoodle.embed.mongo.commands.MongosArguments;
@@ -55,6 +56,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Path;
 import java.util.Date;
 
+import static de.flapdoodle.embed.mongo.MongoClientUtil.mongoClient;
 import static de.flapdoodle.embed.mongo.ServerAddressMapping.serverAddress;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -69,7 +71,8 @@ public class HowToDocTest {
 		recording.begin();
 
 		try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance().start(Version.Main.PRODUCTION)) {
-			try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
+			com.mongodb.ServerAddress serverAddress = serverAddress(running.current().getServerAddress());
+			try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
 				MongoDatabase db = mongo.getDatabase("test");
 				MongoCollection<Document> col = db.getCollection("testCol");
 				col.insertOne(new Document("testDoc", new Date()));
@@ -200,7 +203,8 @@ public class HowToDocTest {
 
 			ServerAddress serverAddress = runningMongod.current().getServerAddress();
 
-			try (MongoClient mongo = MongoClientF.client(serverAddress(serverAddress))) {
+			com.mongodb.ServerAddress serverAddress2 = serverAddress(serverAddress);
+			try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress2)) {
 				mongo.getDatabase("admin").runCommand(new Document("replSetInitiate", new Document()));
 			}
 
@@ -214,7 +218,8 @@ public class HowToDocTest {
 			};
 
 			try (TransitionWalker.ReachedState<RunningMongosProcess> runningMongos = mongos.start(version)) {
-				try (MongoClient mongo = MongoClientF.client(serverAddress(runningMongos.current().getServerAddress()))) {
+				com.mongodb.ServerAddress serverAddress1 = serverAddress(runningMongos.current().getServerAddress());
+				try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress1)) {
 					assertThat(mongo.listDatabaseNames()).contains("admin", "config");
 				}
 			}
@@ -279,7 +284,7 @@ public class HowToDocTest {
 					.initializedWith(MongodArguments.defaults().withAuth(true)))
 			.start(Version.Main.PRODUCTION, withRunningMongod)) {
 
-			try (MongoClient mongo = MongoClientF.client(
+			try (MongoClient mongo = mongoClient(
 				serverAddress(running.current().getServerAddress()),
 				MongoCredential.createCredential("i-am-admin", "admin", "admin-password".toCharArray()))) {
 
@@ -288,7 +293,7 @@ public class HowToDocTest {
 				col.insertOne(new Document("testDoc", new Date()));
 			}
 
-			try (MongoClient mongo = MongoClientF.client(
+			try (MongoClient mongo = mongoClient(
 				serverAddress(running.current().getServerAddress()),
 				MongoCredential.createCredential("read-only", "test-db", "user-password".toCharArray()))) {
 
@@ -307,7 +312,8 @@ public class HowToDocTest {
 
 
 	protected static void assertRunningMongoDB(TransitionWalker.ReachedState<RunningMongodProcess> running) {
-		try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
+		com.mongodb.ServerAddress serverAddress = serverAddress(running.current().getServerAddress());
+		try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
 			MongoDatabase db = mongo.getDatabase("test");
 			MongoCollection<Document> col = db.getCollection("testCol");
 			col.insertOne(new Document("testDoc", new Date()));

@@ -22,9 +22,9 @@ package de.flapdoodle.embed.mongo.scenario;
 
 import com.mongodb.*;
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import de.flapdoodle.checks.Preconditions;
-import de.flapdoodle.embed.mongo.MongoClientF;
 import de.flapdoodle.embed.mongo.commands.MongodArguments;
 import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
@@ -35,14 +35,10 @@ import de.flapdoodle.embed.mongo.types.DatabaseDir;
 import de.flapdoodle.reverse.TransitionWalker;
 import de.flapdoodle.reverse.transitions.Start;
 import org.bson.Document;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.junit.runners.Parameterized;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -271,11 +267,14 @@ public class AccessControlAndListCollectionsActionTest {
 	}
 
 	private static MongoClient mongoClient(ServerAddress serverAddress) {
-		return MongoClientF.client(serverAddress);
+		return MongoClients.create("mongodb://"+ serverAddress);
 	}
 
 	private static MongoClient mongoClient(ServerAddress serverAddress, MongoCredential credential) {
-		return MongoClientF.client(serverAddress, credential);
+		return MongoClients.create(MongoClientSettings.builder()
+			.applyConnectionString(new ConnectionString("mongodb://"+ serverAddress))
+			.credential(credential)
+			.build());
 	}
 
 	private static ServerAddress getServerAddress(

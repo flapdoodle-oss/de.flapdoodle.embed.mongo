@@ -22,9 +22,10 @@ package de.flapdoodle.embed.mongo.examples;
 
 import com.mongodb.*;
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import de.flapdoodle.checks.Preconditions;
-import de.flapdoodle.embed.mongo.MongoClientF;
+import de.flapdoodle.embed.mongo.MongoClientUtil;
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
 import de.flapdoodle.reverse.Listener;
 import de.flapdoodle.reverse.StateID;
@@ -36,6 +37,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static de.flapdoodle.embed.mongo.MongoClientUtil.mongoClient;
 
 @Value.Immutable
 public abstract class EnableAuthentication {
@@ -86,7 +89,7 @@ public abstract class EnableAuthentication {
 					final ServerAddress address = serverAddress(running);
 
 				// Create admin user.
-				try (final MongoClient clientWithoutCredentials = MongoClientF.client(address)) {
+				try (final MongoClient clientWithoutCredentials = MongoClients.create("mongodb://" + address)) {
 					runCommand(
 						clientWithoutCredentials.getDatabase("admin"),
 						commandCreateUser(adminUser(), adminPassword(), Arrays.asList("root"))
@@ -97,7 +100,7 @@ public abstract class EnableAuthentication {
 					MongoCredential.createCredential(adminUser(), "admin", adminPassword().toCharArray());
 
 				// create roles and users
-				try (final MongoClient clientAdmin = MongoClientF.client(address, credentialAdmin)) {
+				try (final MongoClient clientAdmin = mongoClient(address, credentialAdmin)) {
 					entries().forEach(entry -> {
 						if (entry instanceof Role) {
 							Role role = (Role) entry;
@@ -119,7 +122,7 @@ public abstract class EnableAuthentication {
 				final MongoCredential credentialAdmin =
 					MongoCredential.createCredential(adminUser(), "admin", adminPassword().toCharArray());
 
-				try (final MongoClient clientAdmin = MongoClientF.client(address, credentialAdmin)) {
+				try (final MongoClient clientAdmin = mongoClient(address, credentialAdmin)) {
 					try {
 						// if success there will be no answer, the connection just closes..
 						runCommand(

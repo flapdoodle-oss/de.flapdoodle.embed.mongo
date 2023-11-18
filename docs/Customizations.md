@@ -176,7 +176,8 @@ Mongod mongod = new Mongod() {
 };
 
 try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
-  try (MongoClient mongo = MongoClientF.client(serverAddress(running.current().getServerAddress()))) {
+  ServerAddress serverAddress = serverAddress(running.current().getServerAddress());
+  try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
     MongoDatabase db = mongo.getDatabase("test");
     MongoCollection<Document> col = db.getCollection("testCol");
     col.insertOne(new Document("testDoc", new Date()));
