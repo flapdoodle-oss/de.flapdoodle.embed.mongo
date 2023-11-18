@@ -480,7 +480,6 @@
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-core</artifactId>
             <version>4.4.2</version>
-            <scope>provided</scope>
             <optional>true</optional>
         </dependency>
         <dependency>
