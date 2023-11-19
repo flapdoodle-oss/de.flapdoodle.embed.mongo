@@ -26,21 +26,7 @@ public abstract class ClientActions {
 		// no instance
 	}
 
-	public static List<Listener> rolesAndReplication(ExecuteMongoClientAction<?> executeActions,
-		String databaseName,
-		IFeatureAwareVersion version,
-		Optional<AuthenticationSetup> authenticationSetup,
-		Optional<Storage> replication
-	) {
-		List<Listener> listeners = new ArrayList<>();
-
-		authenticationSetup.ifPresent(setup -> listeners.add(authSetup(executeActions, databaseName, setup)));
-		replication.ifPresent(storage -> listeners.add(initReplicaSet(executeActions, version, storage, authenticationSetup.map(AuthenticationSetup::admin))));
-
-		return Collections.unmodifiableList(listeners);
-	}
-
-	public static Listener authSetup(ExecuteMongoClientAction<?> executeAction, String databaseName, AuthenticationSetup setup) {
+	public static Listener setupAuthentication(ExecuteMongoClientAction<?> executeAction, String databaseName, AuthenticationSetup setup) {
 		Listener.TypedListener.Builder typedBuilder = Listener.typedBuilder();
 
 		StateID<RunningMongodProcess> expectedState = StateID.of(RunningMongodProcess.class);
@@ -96,12 +82,20 @@ public abstract class ClientActions {
 	public static Listener initReplicaSet(
 		ExecuteMongoClientAction<?> executeAction,
 		IFeatureAwareVersion version,
+		Storage replication
+	) {
+		return initReplicaSet(executeAction, version, replication, Optional.empty());
+	}
+	
+	public static Listener initReplicaSet(
+		ExecuteMongoClientAction<?> executeAction,
+		IFeatureAwareVersion version,
 		Storage replication,
-		Optional<UsernamePassword> optUser
+		Optional<UsernamePassword> adminUser
 	) {
 		Listener.TypedListener.Builder builder = Listener.typedBuilder();
 
-		Optional<MongoClientAction.Credentials> credentials = optUser
+		Optional<MongoClientAction.Credentials> credentials = adminUser
 			.map(it -> MongoClientAction.credentials("admin", it.name(), it.password()));
 
 		if (version.enabled(Feature.RS_INITIATE)) {

@@ -53,6 +53,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
 import java.util.Date;
+import java.util.Optional;
 
 import static de.flapdoodle.embed.mongo.MongoClientUtil.mongoClient;
 import static de.flapdoodle.embed.mongo.ServerAddressMapping.serverAddress;
@@ -187,24 +188,21 @@ public class HowToDocTest {
 	public void testMongosAndMongod() {
 		recording.begin();
 		Version.Main version = Version.Main.PRODUCTION;
+		Storage storage = Storage.of("testRepSet", 5000);
+
+		Listener withRunningMongod = ClientActions.initReplicaSet(new SyncClientAdapter(), version, storage);
 
 		Mongod mongod = new Mongod() {
 			@Override
 			public Transition<MongodArguments> mongodArguments() {
 				return Start.to(MongodArguments.class).initializedWith(MongodArguments.defaults()
 					.withIsConfigServer(true)
-					.withReplication(Storage.of("testRepSet", 5000)));
+					.withReplication(storage));
 			}
 		};
 
-		try (TransitionWalker.ReachedState<RunningMongodProcess> runningMongod = mongod.start(version)) {
-
+		try (TransitionWalker.ReachedState<RunningMongodProcess> runningMongod = mongod.start(version, withRunningMongod)) {
 			ServerAddress serverAddress = runningMongod.current().getServerAddress();
-
-			com.mongodb.ServerAddress serverAddress2 = serverAddress(serverAddress);
-			try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress2)) {
-				mongo.getDatabase("admin").runCommand(new Document("replSetInitiate", new Document()));
-			}
 
 			Mongos mongos = new Mongos() {
 				@Override public Start<MongosArguments> mongosArguments() {
@@ -266,18 +264,16 @@ public class HowToDocTest {
 	@Test
 	public void setupUserAndRoles() {
 		recording.begin();
+		SyncClientAdapter clientAdapter = new SyncClientAdapter();
 
-		AuthenticationSetup setup = AuthenticationSetup.of(UsernamePassword.of("i-am-admin", "admin-password".toCharArray()))
-			.withEntries(
-				AuthenticationSetup.role("test-db", "test-collection", "can-list-collections")
-					.withActions("listCollections"),
-				ImmutableUser.of("test-db", UsernamePassword.of("read-only", "user-password".toCharArray()))
-					.withRoles("can-list-collections", "read")
-			);
-
-		Listener withRunningMongod = ClientActions.authSetup(new SyncClientAdapter(), "admin", setup);
-
-//		SyncClientAdapter.rolesAndReplication()
+		Listener withRunningMongod = ClientActions.setupAuthentication(clientAdapter, "admin",
+			AuthenticationSetup.of(UsernamePassword.of("i-am-admin", "admin-password"))
+				.withEntries(
+					AuthenticationSetup.role("test-db", "test-collection", "can-list-collections")
+						.withActions("listCollections"),
+					ImmutableUser.of("test-db", UsernamePassword.of("read-only", "user-password"))
+						.withRoles("can-list-collections", "read")
+				));
 
 		try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance()
 			.withMongodArguments(

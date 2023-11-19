@@ -76,7 +76,7 @@ public class MongodAuthTest {
 	public void customRole() {
 		String roleName = "listColls";
 
-		Listener withRunningMongod = ClientActions.authSetup(new SyncClientAdapter(), DB_ADMIN, AuthenticationSetup.of(UsernamePassword.of(USERNAME_ADMIN, PASSWORD_ADMIN))
+		Listener withRunningMongod = ClientActions.setupAuthentication(new SyncClientAdapter(), DB_ADMIN, AuthenticationSetup.of(UsernamePassword.of(USERNAME_ADMIN, PASSWORD_ADMIN))
 			.withEntries(
 				AuthenticationSetup.role(DB_TEST, COLL_TEST, roleName)
 					.withActions("listCollections"),
@@ -109,7 +109,7 @@ public class MongodAuthTest {
 	@Test
 	@Disabled("readAnyDatabase is not assignable")
 	public void readAnyDatabaseRole() {
-		Listener withRunningMongod = ClientActions.authSetup(new SyncClientAdapter(), DB_ADMIN, AuthenticationSetup.of(UsernamePassword.of(USERNAME_ADMIN, PASSWORD_ADMIN))
+		Listener withRunningMongod = ClientActions.setupAuthentication(new SyncClientAdapter(), DB_ADMIN, AuthenticationSetup.of(UsernamePassword.of(USERNAME_ADMIN, PASSWORD_ADMIN))
 			.withEntries(
 				AuthenticationSetup.user(DB_TEST, UsernamePassword.of(USERNAME_NORMAL_USER, PASSWORD_NORMAL_USER)).withRoles("readAnyDatabase")
 			));
@@ -147,7 +147,7 @@ public class MongodAuthTest {
 
 	@Test
 	public void readRole() {
-		Listener withRunningMongod = ClientActions.authSetup(new SyncClientAdapter(), DB_ADMIN, AuthenticationSetup.of(UsernamePassword.of(USERNAME_ADMIN, PASSWORD_ADMIN))
+		Listener withRunningMongod = ClientActions.setupAuthentication(new SyncClientAdapter(), DB_ADMIN, AuthenticationSetup.of(UsernamePassword.of(USERNAME_ADMIN, PASSWORD_ADMIN))
 			.withEntries(
 				AuthenticationSetup.user(DB_TEST, UsernamePassword.of(USERNAME_NORMAL_USER, PASSWORD_NORMAL_USER)).withRoles("read")
 			));
@@ -176,7 +176,7 @@ public class MongodAuthTest {
 
 	@Test
 	public void withoutAnyAditionalConfig() {
-		Listener withRunningMongod = ClientActions.authSetup(new SyncClientAdapter(), DB_ADMIN,
+		Listener withRunningMongod = ClientActions.setupAuthentication(new SyncClientAdapter(), DB_ADMIN,
 			AuthenticationSetup.of(UsernamePassword.of(USERNAME_ADMIN, PASSWORD_ADMIN))
 		);
 

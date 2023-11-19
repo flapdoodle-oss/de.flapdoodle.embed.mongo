@@ -70,13 +70,4 @@ public class ReactiveClientAdapter extends ExecuteMongoClientAction<MongoClient>
 			throw new RuntimeException(e);
 		}
 	}
-
-	public static List<Listener> rolesAndReplication(
-		String databaseName,
-		IFeatureAwareVersion version,
-		Optional<AuthenticationSetup> authenticationSetup,
-		Optional<Storage> replication
-	) {
-		return ClientActions.rolesAndReplication(new ReactiveClientAdapter(), databaseName, version, authenticationSetup, replication);
-	}
 }

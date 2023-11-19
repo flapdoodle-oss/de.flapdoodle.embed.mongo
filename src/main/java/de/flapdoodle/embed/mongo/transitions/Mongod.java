@@ -32,6 +32,8 @@ import de.flapdoodle.reverse.transitions.Derive;
 import de.flapdoodle.reverse.transitions.Start;
 import org.immutables.value.Value;
 
+import java.util.Collection;
+
 @Value.Immutable
 public class Mongod implements WorkspaceDefaults, VersionAndPlatform, ProcessDefaults, CommandName, ExtractFileSet {
 
@@ -85,6 +87,13 @@ public class Mongod implements WorkspaceDefaults, VersionAndPlatform, ProcessDef
 
 	@Value.Auxiliary
 	public TransitionWalker.ReachedState<RunningMongodProcess> start(Version version, Listener... listener) {
+		return transitions(version)
+			.walker()
+			.initState(StateID.of(RunningMongodProcess.class), listener);
+	}
+
+	@Value.Auxiliary
+	public TransitionWalker.ReachedState<RunningMongodProcess> start(Version version, Collection<Listener> listener) {
 		return transitions(version)
 			.walker()
 			.initState(StateID.of(RunningMongodProcess.class), listener);

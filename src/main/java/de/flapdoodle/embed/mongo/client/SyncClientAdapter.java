@@ -35,13 +35,4 @@ public class SyncClientAdapter extends ExecuteMongoClientAction<MongoClient> {
 		}
 		throw new IllegalArgumentException("Action not supported: " + action);
 	}
-
-	public static List<Listener> rolesAndReplication(
-		String databaseName,
-		IFeatureAwareVersion version,
-		Optional<AuthenticationSetup> authenticationSetup,
-		Optional<Storage> replication
-	) {
-		return ClientActions.rolesAndReplication(new SyncClientAdapter(), databaseName, version, authenticationSetup, replication);
-	}
 }
