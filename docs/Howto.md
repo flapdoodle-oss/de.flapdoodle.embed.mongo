@@ -104,24 +104,21 @@ assertThat(destination)
 this is an very easy example to use mongos and mongod
 ```java
 Version.Main version = Version.Main.PRODUCTION;
+Storage storage = Storage.of("testRepSet", 5000);
+
+Listener withRunningMongod = ClientActions.initReplicaSet(new SyncClientAdapter(), version, storage);
 
 Mongod mongod = new Mongod() {
   @Override
   public Transition<MongodArguments> mongodArguments() {
     return Start.to(MongodArguments.class).initializedWith(MongodArguments.defaults()
       .withIsConfigServer(true)
-      .withReplication(Storage.of("testRepSet", 5000)));
+      .withReplication(storage));
   }
 };
 
-try (TransitionWalker.ReachedState<RunningMongodProcess> runningMongod = mongod.start(version)) {
-
+try (TransitionWalker.ReachedState<RunningMongodProcess> runningMongod = mongod.start(version, withRunningMongod)) {
   ServerAddress serverAddress = runningMongod.current().getServerAddress();
-
-  com.mongodb.ServerAddress serverAddress2 = serverAddress(serverAddress);
-  try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress2)) {
-    mongo.getDatabase("admin").runCommand(new Document("replSetInitiate", new Document()));
-  }
 
   Mongos mongos = new Mongos() {
     @Override public Start<MongosArguments> mongosArguments() {
@@ -178,46 +175,44 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> runningMongoD = transit
 ### User/Roles setup
 
 ```java
+SyncClientAdapter clientAdapter = new SyncClientAdapter();
 
-    AuthenticationSetup setup = AuthenticationSetup.of(UsernamePassword.of("i-am-admin", "admin-password".toCharArray()))
-      .withEntries(
-        AuthenticationSetup.role("test-db", "test-collection", "can-list-collections")
-          .withActions("listCollections"),
-        ImmutableUser.of("test-db", UsernamePassword.of("read-only", "user-password".toCharArray()))
-          .withRoles("can-list-collections", "read")
-      );
+Listener withRunningMongod = ClientActions.setupAuthentication(clientAdapter, "admin",
+  AuthenticationSetup.of(UsernamePassword.of("i-am-admin", "admin-password"))
+    .withEntries(
+      AuthenticationSetup.role("test-db", "test-collection", "can-list-collections")
+        .withActions("listCollections"),
+      ImmutableUser.of("test-db", UsernamePassword.of("read-only", "user-password"))
+        .withRoles("can-list-collections", "read")
+    ));
 
-    Listener withRunningMongod = ClientActions.authSetup(new SyncClientAdapter(), "admin", setup);
+try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance()
+  .withMongodArguments(
+    Start.to(MongodArguments.class)
+      .initializedWith(MongodArguments.defaults().withAuth(true)))
+  .start(Version.Main.PRODUCTION, withRunningMongod)) {
 
-//    SyncClientAdapter.rolesAndReplication()
+  try (MongoClient mongo = mongoClient(
+    serverAddress(running.current().getServerAddress()),
+    MongoCredential.createCredential("i-am-admin", "admin", "admin-password".toCharArray()))) {
 
-    try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance()
-      .withMongodArguments(
-        Start.to(MongodArguments.class)
-          .initializedWith(MongodArguments.defaults().withAuth(true)))
-      .start(Version.Main.PRODUCTION, withRunningMongod)) {
+    MongoDatabase db = mongo.getDatabase("test-db");
+    MongoCollection<Document> col = db.getCollection("test-collection");
+    col.insertOne(new Document("testDoc", new Date()));
+  }
 
-      try (MongoClient mongo = mongoClient(
-        serverAddress(running.current().getServerAddress()),
-        MongoCredential.createCredential("i-am-admin", "admin", "admin-password".toCharArray()))) {
+  try (MongoClient mongo = mongoClient(
+    serverAddress(running.current().getServerAddress()),
+    MongoCredential.createCredential("read-only", "test-db", "user-password".toCharArray()))) {
 
-        MongoDatabase db = mongo.getDatabase("test-db");
-        MongoCollection<Document> col = db.getCollection("test-collection");
-        col.insertOne(new Document("testDoc", new Date()));
-      }
+    MongoDatabase db = mongo.getDatabase("test-db");
+    MongoCollection<Document> col = db.getCollection("test-collection");
+    assertThat(col.countDocuments()).isEqualTo(1L);
 
-      try (MongoClient mongo = mongoClient(
-        serverAddress(running.current().getServerAddress()),
-        MongoCredential.createCredential("read-only", "test-db", "user-password".toCharArray()))) {
-
-        MongoDatabase db = mongo.getDatabase("test-db");
-        MongoCollection<Document> col = db.getCollection("test-collection");
-        assertThat(col.countDocuments()).isEqualTo(1L);
-
-        assertThatThrownBy(() -> col.insertOne(new Document("testDoc", new Date())))
-          .isInstanceOf(MongoCommandException.class)
-          .message().contains("not authorized on test-db");
-      }
-    }
+    assertThatThrownBy(() -> col.insertOne(new Document("testDoc", new Date())))
+      .isInstanceOf(MongoCommandException.class)
+      .message().contains("not authorized on test-db");
+  }
+}
 
 ```
