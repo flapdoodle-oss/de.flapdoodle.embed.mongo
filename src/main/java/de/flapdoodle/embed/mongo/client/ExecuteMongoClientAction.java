@@ -8,7 +8,7 @@ import org.bson.Document;
 import java.io.Closeable;
 import java.io.IOException;
 
-abstract class ExecuteMongoClientAction<C extends Closeable> {
+public abstract class ExecuteMongoClientAction<C extends Closeable> {
 	public void execute(RunningMongodProcess runningMongodProcess, MongoClientAction action) {
 		try (C client = action.credentials()
 			.map(c -> client(runningMongodProcess.getServerAddress(),

@@ -99,34 +99,20 @@ abstract class MongoClientAction {
 			.append("roles", Arrays.asList(roles));
 	}
 
-	private static Document privilege(String database, String collection, Collection<String> actions) {
+	static Document privilege(String database, String collection, Collection<String> actions) {
 		return new Document("resource",
 			new Document("db", database)
 				.append("collection", collection))
 			.append("actions", new ArrayList<>(actions));
 	}
 
-	private static Document createRole(String roleName, Collection<String> roles, Document ... privileges) {
+	static Document createRole(String roleName, Collection<String> roles, Document ... privileges) {
 		return new Document("createRole", roleName)
 			.append("privileges", Arrays.asList(privileges))
 			.append("roles", new ArrayList<>(roles));
 	}
 
-	@Deprecated
-	public static Document commandCreateRole(
-		String roleName,
-		String database,
-		String collection,
-		List<String> actions
-	) {
-		return new Document("createRole", roleName)
-			.append("privileges", Collections.singletonList(
-					privilege(database, collection, actions)
-				)
-			).append("roles", Collections.emptyList());
-	}
-
-	private static Document createRole(String roleName, Document ... privileges) {
+	static Document createRole(String roleName, Document ... privileges) {
 		return createRole(roleName, Collections.emptyList(), privileges);
 	}
 

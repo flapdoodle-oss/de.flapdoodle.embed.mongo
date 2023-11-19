@@ -36,7 +36,7 @@ public abstract class ClientActions {
 
 		authenticationSetup.ifPresent(setup -> listeners.add(authSetup(executeActions, databaseName, setup)));
 		replication.ifPresent(storage -> listeners.add(initReplicaSet(executeActions, version, storage, authenticationSetup.map(AuthenticationSetup::admin))));
-		
+
 		return Collections.unmodifiableList(listeners);
 	}
 
@@ -48,16 +48,14 @@ public abstract class ClientActions {
 		UsernamePassword admin = setup.admin();
 
 		// client action without credentials
-		final String username1 = admin.name();
-		final String password1 = admin.passwordAsString();
 		MongoClientAction createAdminUser = MongoClientAction.runCommand("admin",
-			MongoClientAction.createUser(username1, password1, Arrays.asList("root")));
+			MongoClientAction.createUser(admin.name(), admin.passwordAsString(), Arrays.asList("root")));
 
 		List<MongoClientAction> setupRoles;
 
 		if (setup.entries().isEmpty()) {
 			setupRoles = Arrays.asList(
-				// test list collections
+				// test list collections to fail fast if something went wrong
 				MongoClientAction.runCommand(databaseName, MongoClientAction.listCollections())
 					.withCredentials(MongoClientAction.credentials(databaseName, admin.name(), admin.password()))
 			);
@@ -69,16 +67,14 @@ public abstract class ClientActions {
 					if (entry instanceof AuthenticationSetup.Role) {
 						AuthenticationSetup.Role role = (AuthenticationSetup.Role) entry;
 						return MongoClientAction.runCommand(role.database(),
-								MongoClientAction.commandCreateRole(role.name(), role.database(), role.collection(), role.actions()))
+								MongoClientAction.createRole(role.name(),
+									MongoClientAction.privilege(role.database(), role.collection(), role.actions())))
 							.withCredentials(adminCredentials);
 					}
 					if (entry instanceof AuthenticationSetup.User) {
 						AuthenticationSetup.User user = (AuthenticationSetup.User) entry;
-						final String username = user.user().name();
-						final String password = user.user().passwordAsString();
-						final List<String> roles = user.roles();
 						return MongoClientAction.runCommand(user.database(),
-								MongoClientAction.createUser(username, password, roles))
+								MongoClientAction.createUser(user.user().name(), user.user().passwordAsString(), user.roles()))
 							.withCredentials(adminCredentials);
 					}
 					throw new IllegalArgumentException("not supported: " + entry);
