@@ -179,192 +179,45 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> runningMongoD = transit
 
 ```java
 
-Listener withRunningMongod = EnableAuthentication.of("i-am-admin", "admin-password")
-  .withEntries(
-    EnableAuthentication.role("test-db", "test-collection", "can-list-collections")
-      .withActions("listCollections"),
-    EnableAuthentication.user("test-db", "read-only", "user-password")
-      .withRoles("can-list-collections", "read")
-  ).withRunningMongod();
+    AuthenticationSetup setup = AuthenticationSetup.of(UsernamePassword.of("i-am-admin", "admin-password".toCharArray()))
+      .withEntries(
+        AuthenticationSetup.role("test-db", "test-collection", "can-list-collections")
+          .withActions("listCollections"),
+        ImmutableUser.of("test-db", UsernamePassword.of("read-only", "user-password".toCharArray()))
+          .withRoles("can-list-collections", "read")
+      );
 
-try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance()
-  .withMongodArguments(
-    Start.to(MongodArguments.class)
-      .initializedWith(MongodArguments.defaults().withAuth(true)))
-  .start(Version.Main.PRODUCTION, withRunningMongod)) {
+    Listener withRunningMongod = ClientActions.authSetup(new SyncClientAdapter(), "admin", setup);
 
-  try (MongoClient mongo = mongoClient(
-    serverAddress(running.current().getServerAddress()),
-    MongoCredential.createCredential("i-am-admin", "admin", "admin-password".toCharArray()))) {
+//    SyncClientAdapter.rolesAndReplication()
 
-    MongoDatabase db = mongo.getDatabase("test-db");
-    MongoCollection<Document> col = db.getCollection("test-collection");
-    col.insertOne(new Document("testDoc", new Date()));
-  }
+    try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance()
+      .withMongodArguments(
+        Start.to(MongodArguments.class)
+          .initializedWith(MongodArguments.defaults().withAuth(true)))
+      .start(Version.Main.PRODUCTION, withRunningMongod)) {
 
-  try (MongoClient mongo = mongoClient(
-    serverAddress(running.current().getServerAddress()),
-    MongoCredential.createCredential("read-only", "test-db", "user-password".toCharArray()))) {
+      try (MongoClient mongo = mongoClient(
+        serverAddress(running.current().getServerAddress()),
+        MongoCredential.createCredential("i-am-admin", "admin", "admin-password".toCharArray()))) {
 
-    MongoDatabase db = mongo.getDatabase("test-db");
-    MongoCollection<Document> col = db.getCollection("test-collection");
-    assertThat(col.countDocuments()).isEqualTo(1L);
+        MongoDatabase db = mongo.getDatabase("test-db");
+        MongoCollection<Document> col = db.getCollection("test-collection");
+        col.insertOne(new Document("testDoc", new Date()));
+      }
 
-    assertThatThrownBy(() -> col.insertOne(new Document("testDoc", new Date())))
-      .isInstanceOf(MongoCommandException.class)
-      .message().contains("not authorized on test-db");
-  }
-}
+      try (MongoClient mongo = mongoClient(
+        serverAddress(running.current().getServerAddress()),
+        MongoCredential.createCredential("read-only", "test-db", "user-password".toCharArray()))) {
 
-```
+        MongoDatabase db = mongo.getDatabase("test-db");
+        MongoCollection<Document> col = db.getCollection("test-collection");
+        assertThat(col.countDocuments()).isEqualTo(1L);
 
-```java
-@Value.Immutable
-public abstract class EnableAuthentication {
-  private static Logger LOGGER= LoggerFactory.getLogger(EnableAuthentication.class);
+        assertThatThrownBy(() -> col.insertOne(new Document("testDoc", new Date())))
+          .isInstanceOf(MongoCommandException.class)
+          .message().contains("not authorized on test-db");
+      }
+    }
 
-  @Value.Parameter
-  protected abstract String adminUser();
-  @Value.Parameter
-  protected abstract String adminPassword();
-
-  @Value.Default
-  protected List<Entry> entries() {
-    return Collections.emptyList();
-  }
-
-  public interface Entry {
-
-  }
-
-  @Value.Immutable
-  public interface Role extends Entry {
-    @Value.Parameter
-    String database();
-    @Value.Parameter
-    String collection();
-    @Value.Parameter
-    String name();
-    List<String> actions();
-  }
-
-  @Value.Immutable
-  public interface User extends Entry {
-    @Value.Parameter
-    String database();
-    @Value.Parameter
-    String username();
-    @Value.Parameter
-    String password();
-    List<String> roles();
-  }
-
-  @Value.Auxiliary
-  public Listener withRunningMongod() {
-    StateID<RunningMongodProcess> expectedState = StateID.of(RunningMongodProcess.class);
-
-    return Listener.typedBuilder()
-      .onStateReached(expectedState, running -> {
-          final ServerAddress address = serverAddress(running);
-
-        // Create admin user.
-        try (final MongoClient clientWithoutCredentials = MongoClients.create("mongodb://" + address)) {
-          runCommand(
-            clientWithoutCredentials.getDatabase("admin"),
-            commandCreateUser(adminUser(), adminPassword(), Arrays.asList("root"))
-          );
-        }
-
-        final MongoCredential credentialAdmin =
-          MongoCredential.createCredential(adminUser(), "admin", adminPassword().toCharArray());
-
-        // create roles and users
-        try (final MongoClient clientAdmin = mongoClient(address, credentialAdmin)) {
-          entries().forEach(entry -> {
-            if (entry instanceof Role) {
-              Role role = (Role) entry;
-              MongoDatabase db = clientAdmin.getDatabase(role.database());
-              runCommand(db, commandCreateRole(role.database(), role.collection(), role.name(), role.actions()));
-            }
-            if (entry instanceof User) {
-              User user = (User) entry;
-              MongoDatabase db = clientAdmin.getDatabase(user.database());
-              runCommand(db, commandCreateUser(user.username(), user.password(), user.roles()));
-            }
-          });
-        }
-
-      })
-      .onStateTearDown(expectedState, running -> {
-        final ServerAddress address = serverAddress(running);
-
-        final MongoCredential credentialAdmin =
-          MongoCredential.createCredential(adminUser(), "admin", adminPassword().toCharArray());
-
-        try (final MongoClient clientAdmin = mongoClient(address, credentialAdmin)) {
-          try {
-            // if success there will be no answer, the connection just closes..
-            runCommand(
-              clientAdmin.getDatabase("admin"),
-              new Document("shutdown", 1).append("force", true)
-            );
-          } catch (MongoSocketReadException mx) {
-            LOGGER.debug("shutdown completed by closing stream");
-          }
-
-          running.shutDownCommandAlreadyExecuted();
-        }
-      })
-      .build();
-  }
-
-  private static void runCommand(MongoDatabase db, Document document) {
-    Document result = db.runCommand(document);
-    boolean success = result.get("ok", Double.class) == 1.0d;
-    Preconditions.checkArgument(success, "runCommand %s failed: %s", document, result);
-  }
-
-  private static Document commandCreateRole(
-    String database,
-    String collection,
-    String roleName,
-    List<String> actions
-  ) {
-    return new Document("createRole", roleName)
-      .append("privileges", Collections.singletonList(
-          new Document("resource",
-            new Document("db", database)
-              .append("collection", collection))
-            .append("actions", actions)
-        )
-      ).append("roles", Collections.emptyList());
-  }
-
-  static Document commandCreateUser(
-    final String username,
-    final String password,
-    final List<String> roles
-  ) {
-    return new Document("createUser", username)
-      .append("pwd", password)
-      .append("roles", roles);
-  }
-
-  private static ServerAddress serverAddress(RunningMongodProcess running) {
-    de.flapdoodle.embed.mongo.commands.ServerAddress serverAddress = running.getServerAddress();
-    return new ServerAddress(serverAddress.getHost(), serverAddress.getPort());
-  }
-
-  public static ImmutableRole role(String database, String collection, String name) {
-    return ImmutableRole.of(database, collection, name);
-  }
-
-  public static ImmutableUser user(String database, String username, String password) {
-    return ImmutableUser.of(database, username, password);
-  }
-
-  public static ImmutableEnableAuthentication of(String adminUser, String adminPassword) {
-    return ImmutableEnableAuthentication.of(adminUser,adminPassword);
-  }
-}
 ```

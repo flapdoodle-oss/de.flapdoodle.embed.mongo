@@ -63,7 +63,3 @@ ${importJsonIntoMongoDB}
 ```java
 ${setupUserAndRoles}
 ```
-
-```java
-${setupUserAndRoles.EnableAuthentication}
-```

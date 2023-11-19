@@ -22,12 +22,15 @@ package de.flapdoodle.embed.mongo.examples;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.mongodb.client.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
-import de.flapdoodle.embed.mongo.MongoClientUtil;
+import de.flapdoodle.embed.mongo.client.AuthenticationSetup;
+import de.flapdoodle.embed.mongo.client.ClientActions;
+import de.flapdoodle.embed.mongo.client.SyncClientAdapter;
+import de.flapdoodle.embed.mongo.client.UsernamePassword;
 import de.flapdoodle.embed.mongo.commands.MongodArguments;
 import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
@@ -72,12 +75,13 @@ public class MongodAuthTest {
 	@Test
 	public void customRole() {
 		String roleName = "listColls";
-		Listener withRunningMongod = EnableAuthentication.of(USERNAME_ADMIN, PASSWORD_ADMIN)
+
+		Listener withRunningMongod = ClientActions.authSetup(new SyncClientAdapter(), DB_ADMIN, AuthenticationSetup.of(UsernamePassword.of(USERNAME_ADMIN, PASSWORD_ADMIN))
 			.withEntries(
-				EnableAuthentication.role(DB_TEST, COLL_TEST, roleName).withActions("listCollections"),
-				EnableAuthentication.user(DB_TEST, USERNAME_NORMAL_USER, PASSWORD_NORMAL_USER).withRoles(roleName, "readWrite")
-			)
-			.withRunningMongod();
+				AuthenticationSetup.role(DB_TEST, COLL_TEST, roleName)
+					.withActions("listCollections"),
+				AuthenticationSetup.user(DB_TEST, UsernamePassword.of(USERNAME_NORMAL_USER, PASSWORD_NORMAL_USER)).withRoles(roleName, "readWrite")
+			));
 
 
 		try (final TransitionWalker.ReachedState<RunningMongodProcess> running = startMongod(true, withRunningMongod)) {
@@ -105,11 +109,10 @@ public class MongodAuthTest {
 	@Test
 	@Disabled("readAnyDatabase is not assignable")
 	public void readAnyDatabaseRole() {
-		Listener withRunningMongod = EnableAuthentication.of(USERNAME_ADMIN, PASSWORD_ADMIN)
+		Listener withRunningMongod = ClientActions.authSetup(new SyncClientAdapter(), DB_ADMIN, AuthenticationSetup.of(UsernamePassword.of(USERNAME_ADMIN, PASSWORD_ADMIN))
 			.withEntries(
-				EnableAuthentication.user(DB_TEST, USERNAME_NORMAL_USER, PASSWORD_NORMAL_USER).withRoles("readAnyDatabase")
-			)
-			.withRunningMongod();
+				AuthenticationSetup.user(DB_TEST, UsernamePassword.of(USERNAME_NORMAL_USER, PASSWORD_NORMAL_USER)).withRoles("readAnyDatabase")
+			));
 
 		try (final TransitionWalker.ReachedState<RunningMongodProcess> running = startMongod(withRunningMongod)) {
 			final ServerAddress address = getServerAddress(running);
@@ -144,11 +147,10 @@ public class MongodAuthTest {
 
 	@Test
 	public void readRole() {
-		Listener withRunningMongod = EnableAuthentication.of(USERNAME_ADMIN, PASSWORD_ADMIN)
+		Listener withRunningMongod = ClientActions.authSetup(new SyncClientAdapter(), DB_ADMIN, AuthenticationSetup.of(UsernamePassword.of(USERNAME_ADMIN, PASSWORD_ADMIN))
 			.withEntries(
-				EnableAuthentication.user(DB_TEST, USERNAME_NORMAL_USER, PASSWORD_NORMAL_USER).withRoles("read")
-			)
-			.withRunningMongod();
+				AuthenticationSetup.user(DB_TEST, UsernamePassword.of(USERNAME_NORMAL_USER, PASSWORD_NORMAL_USER)).withRoles("read")
+			));
 
 		try (final TransitionWalker.ReachedState<RunningMongodProcess> running = startMongod(withRunningMongod)) {
 			final ServerAddress address = getServerAddress(running);

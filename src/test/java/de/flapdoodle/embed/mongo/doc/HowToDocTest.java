@@ -27,7 +27,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import de.flapdoodle.embed.mongo.MongoClientUtil;
+import de.flapdoodle.embed.mongo.client.*;
 import de.flapdoodle.embed.mongo.commands.MongoImportArguments;
 import de.flapdoodle.embed.mongo.commands.MongodArguments;
 import de.flapdoodle.embed.mongo.commands.MongosArguments;
@@ -35,7 +35,6 @@ import de.flapdoodle.embed.mongo.commands.ServerAddress;
 import de.flapdoodle.embed.mongo.config.Storage;
 import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion;
 import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.mongo.examples.EnableAuthentication;
 import de.flapdoodle.embed.mongo.transitions.*;
 import de.flapdoodle.embed.mongo.types.DatabaseDir;
 import de.flapdoodle.embed.mongo.types.DistributionBaseUrl;
@@ -43,7 +42,6 @@ import de.flapdoodle.embed.mongo.util.FileUtils;
 import de.flapdoodle.reverse.*;
 import de.flapdoodle.reverse.transitions.Derive;
 import de.flapdoodle.reverse.transitions.Start;
-import de.flapdoodle.testdoc.Includes;
 import de.flapdoodle.testdoc.Recorder;
 import de.flapdoodle.testdoc.Recording;
 import de.flapdoodle.testdoc.TabSize;
@@ -267,16 +265,19 @@ public class HowToDocTest {
 
 	@Test
 	public void setupUserAndRoles() {
-		recording.include(EnableAuthentication.class, Includes.WithoutImports, Includes.WithoutPackage, Includes.Trim);
 		recording.begin();
 
-		Listener withRunningMongod = EnableAuthentication.of("i-am-admin", "admin-password")
+		AuthenticationSetup setup = AuthenticationSetup.of(UsernamePassword.of("i-am-admin", "admin-password".toCharArray()))
 			.withEntries(
-				EnableAuthentication.role("test-db", "test-collection", "can-list-collections")
+				AuthenticationSetup.role("test-db", "test-collection", "can-list-collections")
 					.withActions("listCollections"),
-				EnableAuthentication.user("test-db", "read-only", "user-password")
+				ImmutableUser.of("test-db", UsernamePassword.of("read-only", "user-password".toCharArray()))
 					.withRoles("can-list-collections", "read")
-			).withRunningMongod();
+			);
+
+		Listener withRunningMongod = ClientActions.authSetup(new SyncClientAdapter(), "admin", setup);
+
+//		SyncClientAdapter.rolesAndReplication()
 
 		try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance()
 			.withMongodArguments(
