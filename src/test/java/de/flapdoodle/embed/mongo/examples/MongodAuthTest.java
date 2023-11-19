@@ -174,6 +174,29 @@ public class MongodAuthTest {
 		}
 	}
 
+	@Test
+	public void withoutAnyAditionalConfig() {
+		Listener withRunningMongod = ClientActions.authSetup(new SyncClientAdapter(), DB_ADMIN,
+			AuthenticationSetup.of(UsernamePassword.of(USERNAME_ADMIN, PASSWORD_ADMIN))
+		);
+
+		try (final TransitionWalker.ReachedState<RunningMongodProcess> running = startMongod(true, withRunningMongod)) {
+			final ServerAddress address = getServerAddress(running);
+
+			final MongoCredential credentialAdmin =
+				MongoCredential.createCredential(USERNAME_ADMIN, DB_ADMIN, PASSWORD_ADMIN.toCharArray());
+
+			try (final MongoClient clientAdmin = mongoClient(address, credentialAdmin)) {
+				final MongoDatabase db = clientAdmin.getDatabase(DB_TEST);
+				db.getCollection(COLL_TEST).insertOne(new Document(ImmutableMap.of("key", "value")));
+
+				final List<String> expected = Lists.newArrayList(COLL_TEST);
+				final ArrayList<String> actual = clientAdmin.getDatabase(DB_TEST).listCollectionNames().into(new ArrayList<>());
+				Assertions.assertIterableEquals(expected, actual);
+			}
+		}
+	}
+
 	private static TransitionWalker.ReachedState<RunningMongodProcess> startMongod(Listener... listener) {
 		return startMongod(false, listener);
 	}

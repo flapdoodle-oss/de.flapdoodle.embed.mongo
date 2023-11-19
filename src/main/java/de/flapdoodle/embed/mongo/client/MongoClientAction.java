@@ -79,15 +79,6 @@ abstract class MongoClientAction {
 		return createUser(username, pwd, Arrays.asList(roles));
 	}
 
-	@Deprecated
-	static Document commandCreateUser(
-		final String username,
-		final String password,
-		final List<String> roles
-	) {
-		return createUser(username, password, roles);
-	}
-
 	static Document createUser(
 		final String username,
 		final String password,
@@ -108,11 +99,11 @@ abstract class MongoClientAction {
 			.append("roles", Arrays.asList(roles));
 	}
 
-	private static Document privilege(String database, String ... actions) {
+	private static Document privilege(String database, String collection, Collection<String> actions) {
 		return new Document("resource",
 			new Document("db", database)
-				.append("collection", ""))
-			.append("actions", Arrays.asList(actions));
+				.append("collection", collection))
+			.append("actions", new ArrayList<>(actions));
 	}
 
 	private static Document createRole(String roleName, Collection<String> roles, Document ... privileges) {
@@ -123,17 +114,14 @@ abstract class MongoClientAction {
 
 	@Deprecated
 	public static Document commandCreateRole(
+		String roleName,
 		String database,
 		String collection,
-		String roleName,
 		List<String> actions
 	) {
 		return new Document("createRole", roleName)
 			.append("privileges", Collections.singletonList(
-					new Document("resource",
-						new Document("db", database)
-							.append("collection", collection))
-						.append("actions", actions)
+					privilege(database, collection, actions)
 				)
 			).append("roles", Collections.emptyList());
 	}

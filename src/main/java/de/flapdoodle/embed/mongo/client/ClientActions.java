@@ -40,22 +40,6 @@ public abstract class ClientActions {
 		return Collections.unmodifiableList(listeners);
 	}
 
-	@Deprecated
-	public static Listener addAuthUserToDB(ExecuteMongoClientAction<?> executeAction, Optional<UsernamePassword> optUser, String databaseName) {
-		Listener.TypedListener.Builder typedBuilder = Listener.typedBuilder();
-
-		if (optUser.isPresent()) {
-			UsernamePassword user = optUser.get();
-
-			typedBuilder.onStateReached(StateID.of(RunningMongodProcess.class),
-				executeClientActions(executeAction, createAdminUserWithDatabaseAccess(user.name(), user.password(), databaseName)));
-			typedBuilder.onStateTearDown(StateID.of(RunningMongodProcess.class),
-				executeClientActions(executeAction, Collections.singletonList(shutdown(user.name(), user.password())))
-					.andThen(RunningMongoProcess::shutDownCommandAlreadyExecuted));
-		}
-		return typedBuilder.build();
-	}
-
 	public static Listener authSetup(ExecuteMongoClientAction<?> executeAction, String databaseName, AuthenticationSetup setup) {
 		Listener.TypedListener.Builder typedBuilder = Listener.typedBuilder();
 
@@ -64,34 +48,37 @@ public abstract class ClientActions {
 		UsernamePassword admin = setup.admin();
 
 		// client action without credentials
+		final String username1 = admin.name();
+		final String password1 = admin.passwordAsString();
 		MongoClientAction createAdminUser = MongoClientAction.runCommand("admin",
-			MongoClientAction.commandCreateUser(admin.name(), admin.passwordAsString(), Arrays.asList("root")));
-
-		MongoClientAction.Credentials adminCredentials = MongoClientAction.credentials("admin", admin.name(), admin.password());
+			MongoClientAction.createUser(username1, password1, Arrays.asList("root")));
 
 		List<MongoClientAction> setupRoles;
 
 		if (setup.entries().isEmpty()) {
 			setupRoles = Arrays.asList(
-				MongoClientAction.createUser(databaseName, admin.name(), admin.password(), "readWrite")
-					.withCredentials(MongoClientAction.credentials("admin", admin.name(), admin.password())),
 				// test list collections
 				MongoClientAction.runCommand(databaseName, MongoClientAction.listCollections())
 					.withCredentials(MongoClientAction.credentials(databaseName, admin.name(), admin.password()))
 			);
 		} else {
+			MongoClientAction.Credentials adminCredentials = MongoClientAction.credentials("admin", admin.name(), admin.password());
+
 			setupRoles = setup.entries()
 				.stream().map(entry -> {
 					if (entry instanceof AuthenticationSetup.Role) {
 						AuthenticationSetup.Role role = (AuthenticationSetup.Role) entry;
 						return MongoClientAction.runCommand(role.database(),
-								MongoClientAction.commandCreateRole(role.database(), role.collection(), role.name(), role.actions()))
+								MongoClientAction.commandCreateRole(role.name(), role.database(), role.collection(), role.actions()))
 							.withCredentials(adminCredentials);
 					}
 					if (entry instanceof AuthenticationSetup.User) {
 						AuthenticationSetup.User user = (AuthenticationSetup.User) entry;
+						final String username = user.user().name();
+						final String password = user.user().passwordAsString();
+						final List<String> roles = user.roles();
 						return MongoClientAction.runCommand(user.database(),
-								MongoClientAction.commandCreateUser(user.user().name(), user.user().passwordAsString(), user.roles()))
+								MongoClientAction.createUser(username, password, roles))
 							.withCredentials(adminCredentials);
 					}
 					throw new IllegalArgumentException("not supported: " + entry);
@@ -175,18 +162,6 @@ public abstract class ClientActions {
 		for (MongoClientAction action : actions) {
 			executeAction.execute(runningMongodProcess, action);
 		}
-	}
-
-	private static List<? extends MongoClientAction> createAdminUserWithDatabaseAccess(String username, char[] password, String databaseName) {
-		List<ImmutableMongoClientAction> actions = Arrays.asList(
-			MongoClientAction.createUser("admin", username, password, "root"),
-			MongoClientAction.createUser(databaseName, username, password, "readWrite")
-				.withCredentials(MongoClientAction.credentials("admin", username, password)),
-			// test list collections
-			MongoClientAction.runCommand(databaseName, MongoClientAction.listCollections())
-				.withCredentials(MongoClientAction.credentials(databaseName, username, password))
-		);
-		return actions;
 	}
 
 	private static MongoClientAction shutdown(String username, char[] password) {
