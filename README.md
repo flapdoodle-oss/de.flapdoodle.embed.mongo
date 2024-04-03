@@ -62,6 +62,8 @@ We use http://www.apache.org/licenses/LICENSE-2.0
 
 #### Unreleased
 
+#### 4.12.3
+
 - alma linux support
 - dependency updates
 - mongodb version support for 7.0.7, 7.3.0, etc
