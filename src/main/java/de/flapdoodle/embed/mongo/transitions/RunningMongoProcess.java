@@ -206,10 +206,10 @@ public abstract class RunningMongoProcess extends RunningProcessImpl {
 			"(?<error>Error parsing command line:.*)",
 			"(?<error>Address already in use)",
 			"(?<error>error while loading shared libraries:.*)",
-			"(?<error>SSLEAY32.dll was not found)",
-			"(?<error>LIBEAY32.dll was not found)",
+			"(?<error>SSLEAY32\\.dll was not found)",
+			"(?<error>LIBEAY32\\.dll was not found)",
 			"(?<error>the code execution cannot proceed because.*)",
-			"(?<error>Error setting up listener)"
+			"(?<error>An attempt was made to access a socket in a way forbidden by its access permissions)"
 		);
 	}
 
