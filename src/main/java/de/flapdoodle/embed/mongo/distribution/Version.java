@@ -265,6 +265,7 @@ public enum Version implements IFeatureAwareVersion, HasMongotoolsPackage {
 	V7_0_2("7.0.2", MongotoolsVersion.Main.V100_7),
 	V7_0_4("7.0.4", MongotoolsVersion.Main.V100_8),
 	V7_0_7("7.0.7", MongotoolsVersion.Main.V100_8),
+	V7_0_8("7.0.8", MongotoolsVersion.Main.V100_8),
 
 	@Deprecated
   LATEST_NIGHTLY("latest"),
