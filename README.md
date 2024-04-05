@@ -62,6 +62,8 @@ We use http://www.apache.org/licenses/LICENSE-2.0
 
 #### Unreleased
 
+- bugfix in embed.process
+
 #### 4.12.3
 
 - alma linux support
