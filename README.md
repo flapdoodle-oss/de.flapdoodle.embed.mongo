@@ -55,12 +55,14 @@ We use http://www.apache.org/licenses/LICENSE-2.0
 	<dependency>
 		<groupId>de.flapdoodle.embed</groupId>
 		<artifactId>de.flapdoodle.embed.mongo</artifactId>
-		<version>4.12.5</version>
+		<version>4.12.6</version>
 	</dependency>
 
 ### Changelog
 
 #### Unreleased
+
+#### 4.12.6
 
 - mongodb 7.0.8
 
