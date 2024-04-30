@@ -62,10 +62,9 @@ We use http://www.apache.org/licenses/LICENSE-2.0
 
 #### Unreleased
 
-#### 4.12.7
-           
 - mongodb 7.0.9, 8.0.0-rc3
 - detect ubuntu 24.04
+- bugfix in embed.process
 
 #### 4.12.6
 
