@@ -62,7 +62,7 @@ We use http://www.apache.org/licenses/LICENSE-2.0
 
 #### Unreleased
 
-#### 4.13.0
+#### 4.13.1
 
 - mongod server start timeout increased from 20s to 30s
 - mongod server start timeout is now configurable
