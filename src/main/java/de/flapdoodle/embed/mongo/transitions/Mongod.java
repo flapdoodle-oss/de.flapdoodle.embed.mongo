@@ -57,11 +57,12 @@ public class Mongod implements WorkspaceDefaults, VersionAndPlatform, ProcessDef
 	}
 
 	@Value.Default
-	public MongodProcessArguments mongodProcessArguments() {
+	protected MongodProcessArguments mongodProcessArguments() {
 		return MongodProcessArguments.withDefaults();
 	}
 
-	private MongodStarter mongodStarter() {
+	@Value.Default
+	protected MongodStarter mongodStarter() {
 		return MongodStarter.withDefaults();
 	}
 

@@ -17,6 +17,14 @@ Mongod mongod = Mongod.builder()
   .build();
 ```
 
+## Customize StartTimeout
+
+```java
+Mongod mongod = Mongod.builder()
+  .startTimeout(Start.to(StartTimeout.class)
+    .initializedWith(StartTimeout.of(30000L)))
+  .build();
+```
 
 ## Customize Download URL
 

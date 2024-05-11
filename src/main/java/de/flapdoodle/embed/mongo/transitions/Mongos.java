@@ -44,13 +44,23 @@ public class Mongos implements WorkspaceDefaults, VersionAndPlatform, ProcessDef
 				Start.to(Net.class).providedBy(Net::defaults),
 
 				mongosArguments(),
-				MongosProcessArguments.withDefaults(),
-				MongosStarter.withDefaults()
+				mongosProcessArguments(),
+				mongosStarter()
 			);
 	}
 
 	public Start<MongosArguments> mongosArguments() {
 		return Start.to(MongosArguments.class).initializedWith(MongosArguments.defaults());
+	}
+
+	@Value.Default
+	protected MongosProcessArguments mongosProcessArguments() {
+		return MongosProcessArguments.withDefaults();
+	}
+
+	@Value.Default
+	protected MongosStarter mongosStarter() {
+		return MongosStarter.withDefaults();
 	}
 
 	public TransitionWalker.ReachedState<RunningMongosProcess> start(Version version) {

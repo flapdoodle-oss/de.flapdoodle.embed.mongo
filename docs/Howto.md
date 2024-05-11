@@ -50,10 +50,10 @@ Transitions mongod = Mongod.instance()
 IFeatureAwareVersion version = Version.V2_2_5;
 // uses latest supported 2.2.x Version
 version = Version.Main.V2_2;
-// uses latest supported production version
-version = Version.Main.PRODUCTION;
-// uses latest supported development version
-version = Version.Main.DEVELOPMENT;
+// uses latest supported 6.0.x Version
+version = Version.Main.V6_0;
+// uses latest supported 7.0.9 Version
+version = Version.V7_0_9;
 ```
 
 ### Command Line Post Processing

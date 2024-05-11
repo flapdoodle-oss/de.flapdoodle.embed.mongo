@@ -170,10 +170,11 @@ public abstract class RunningMongoProcess extends RunningProcessImpl {
 					? logWatch.errorMessage().get()
 					: "\n" +
 					"----------------------\n" +
-					"Hmm.. no failure message.. \n" +
-					"...the cause must be somewhere in the process output\n" +
-					"----------------------\n" +
-					""+logWatch.allLines();
+					"Hmm.. no failure or success message after "+startupTimeout+"ms .. \n" +
+					"...the cause must be somewhere in the process output:\n" +
+					"- 8<- - - - - - - - - -\n" +
+					logWatch.allLines()+
+					"\n- >8- - - - - - - - - -\n";
 
 				return Try.<T, RuntimeException>supplier(() -> {
 						throw new RuntimeException("Could not start process: "+failureFound);

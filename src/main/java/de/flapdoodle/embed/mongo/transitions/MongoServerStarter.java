@@ -21,6 +21,7 @@
 package de.flapdoodle.embed.mongo.transitions;
 
 import de.flapdoodle.embed.mongo.config.Net;
+import de.flapdoodle.embed.mongo.types.StartTimeout;
 import de.flapdoodle.embed.process.archives.ExtractedFileSet;
 import de.flapdoodle.embed.process.config.SupportConfig;
 import de.flapdoodle.embed.process.io.ProcessOutput;
@@ -83,6 +84,11 @@ public abstract class MongoServerStarter<T extends RunningProcess> implements Tr
 		return StateID.of(Net.class);
 	}
 
+	@Value.Default
+	public StateID<StartTimeout> startTimeout() {
+		return StateID.of(StartTimeout.class);
+	}
+
 	@Override
 	public Set<StateID<?>> sources() {
 		return StateID.setOf(
@@ -90,6 +96,7 @@ public abstract class MongoServerStarter<T extends RunningProcess> implements Tr
 			processExecutable(),
 			processConfig(),
 			processEnv(),
+			startTimeout(),
 			arguments(),
 			processOutput(),
 			supportConfig(),
@@ -108,13 +115,14 @@ public abstract class MongoServerStarter<T extends RunningProcess> implements Tr
 		List<String> arguments = lookup.of(arguments()).value();
 		Map<String, String> environment = lookup.of(processEnv()).value();
 		ProcessConfig processConfig = lookup.of(processConfig());
+		StartTimeout startTimeout = lookup.of(startTimeout());
 		ProcessOutput processOutput = lookup.of(processOutput());
 		SupportConfig supportConfig = lookup.of(supportConfig());
 		Platform platform = lookup.of(platform());
 		Net net = lookup.of(net());
 
 		try {
-			RunningProcessFactory<T> factory = factory(20000, supportConfig, platform, net);
+			RunningProcessFactory<T> factory = factory(startTimeout.value(), supportConfig, platform, net);
 
 			T running = RunningProcess.start(factory, processWorkingDir, fileSet.executable(), arguments, environment, processConfig,
 				processOutput, supportConfig);

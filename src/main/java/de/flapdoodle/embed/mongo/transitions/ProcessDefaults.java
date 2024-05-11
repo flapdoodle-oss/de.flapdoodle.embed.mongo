@@ -21,6 +21,7 @@
 package de.flapdoodle.embed.mongo.transitions;
 
 import de.flapdoodle.embed.mongo.packageresolver.Command;
+import de.flapdoodle.embed.mongo.types.StartTimeout;
 import de.flapdoodle.embed.process.config.SupportConfig;
 import de.flapdoodle.embed.process.io.ProcessOutput;
 import de.flapdoodle.embed.process.types.Name;
@@ -47,6 +48,13 @@ public interface ProcessDefaults {
 	}
 
 	@Value.Default
+	default Transition<StartTimeout> startTimeout() {
+		return Start.to(StartTimeout.class)
+			.initializedWith(StartTimeout.of(30000L))
+			.withTransitionLabel("startTimeout=30000ms");
+	}
+
+	@Value.Default
 	default Transition<ProcessOutput> processOutput() {
 		return Derive.given(Name.class).state(ProcessOutput.class)
 			.deriveBy(name -> ProcessOutput.namedConsole(name.value()))
@@ -69,7 +77,8 @@ public interface ProcessDefaults {
 			processConfig(),
 			processEnv(),
 			processOutput(),
-			supportConfig()
+			supportConfig(),
+			startTimeout()
 		);
 	}
 }

@@ -34,6 +34,7 @@ import de.flapdoodle.embed.mongo.transitions.PackageOfCommandDistribution;
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
 import de.flapdoodle.embed.mongo.types.DatabaseDir;
 import de.flapdoodle.embed.mongo.types.DistributionBaseUrl;
+import de.flapdoodle.embed.mongo.types.StartTimeout;
 import de.flapdoodle.embed.process.config.DownloadConfig;
 import de.flapdoodle.embed.process.config.TimeoutConfig;
 import de.flapdoodle.embed.process.config.store.FileSet;
@@ -101,6 +102,21 @@ public class CustomizationsTest {
 			assertRunningMongoDB(running);
 		}
 	}
+
+	@Test
+	public void increaseStartTimeout() {
+		recording.begin();
+		Mongod mongod = Mongod.builder()
+			.startTimeout(Start.to(StartTimeout.class)
+				.initializedWith(StartTimeout.of(30000L)))
+			.build();
+		recording.end();
+		
+		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
+			assertRunningMongoDB(running);
+		}
+	}
+
 
 	@Test
 	public void testCustomizeDownloadURL() {
