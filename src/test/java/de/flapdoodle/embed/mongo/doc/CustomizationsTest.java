@@ -354,7 +354,7 @@ public class CustomizationsTest {
 			Package resolvedPackage = reachedState.current();
 
 			assertThat(resolvedPackage.url())
-				.isEqualTo("http://some-local-server/relativePath-7.0.9.tgz");
+				.isEqualTo("http://some-local-server/relativePath-7.0.11.tgz");
 		}
 	}
 

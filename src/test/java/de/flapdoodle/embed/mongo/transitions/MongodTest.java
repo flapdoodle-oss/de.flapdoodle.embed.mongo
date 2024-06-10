@@ -39,6 +39,7 @@ import de.flapdoodle.embed.process.io.directories.PersistentDir;
 import de.flapdoodle.embed.process.runtime.Network;
 import de.flapdoodle.embed.process.store.ExtractedFileSetStore;
 import de.flapdoodle.os.*;
+import de.flapdoodle.os.linux.DebianVersion;
 import de.flapdoodle.reverse.Listener;
 import de.flapdoodle.reverse.StateID;
 import de.flapdoodle.reverse.Transition;
@@ -344,6 +345,15 @@ class MongodTest {
 		} else {
 			assertCanExtractArtifact(distributionOf(version, os, arch));
 		}
+	}
+
+	@Test
+	void testForDebianVersion() {
+		assertCanExtractArtifact(Distribution.of(Version.Main.V7_0, ImmutablePlatform.builder()
+			.operatingSystem(CommonOS.Linux)
+			.architecture(CommonArchitecture.ARM_64)
+			.version(DebianVersion.DEBIAN_12)
+			.build()));
 	}
 
 	private static void assertCanExtractArtifact(Distribution distribution) {

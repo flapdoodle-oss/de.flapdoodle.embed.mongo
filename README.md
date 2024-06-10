@@ -62,6 +62,9 @@ We use http://www.apache.org/licenses/LICENSE-2.0
 
 #### Unreleased
 
+- mongodb 7.0.11 support
+- rocky linux support
+
 #### 4.13.1
 
 - mongod server start timeout increased from 20s to 30s
