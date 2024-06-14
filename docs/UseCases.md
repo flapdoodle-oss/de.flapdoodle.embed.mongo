@@ -3,7 +3,7 @@
 ## start mongod                                       
 
 ```java
-Transitions transitions = Mongod.instance().transitions(Version.Main.PRODUCTION);
+Transitions transitions = Mongod.instance().transitions(version);
 
 try (TransitionWalker.ReachedState<RunningMongodProcess> running = transitions.walker()
   .initState(StateID.of(RunningMongodProcess.class))) {
@@ -25,7 +25,7 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> running = transitions.w
 Transitions transitions = Mongod.instance()
   .withDatabaseDir(Start.to(DatabaseDir.class)
     .initializedWith(DatabaseDir.of(persistentDir)))
-  .transitions(Version.Main.PRODUCTION);
+  .transitions(version);
 
 try (TransitionWalker.ReachedState<RunningMongodProcess> running = transitions.walker()
   .initState(StateID.of(RunningMongodProcess.class))) {
@@ -64,8 +64,6 @@ MongoImportArguments arguments = MongoImportArguments.builder()
   .isJsonArray(true)
   .upsertDocuments(true)
   .build();
-
-Version.Main version = Version.Main.V7_0;
 
 try (TransitionWalker.ReachedState<RunningMongodProcess> mongoD = Mongod.instance().transitions(version)
   .walker()
@@ -109,8 +107,6 @@ ImmutableMongoImportArguments arguments = MongoImportArguments.builder()
   .upsertDocuments(true)
   .build();
 
-Version.Main version = Version.Main.PRODUCTION;
-
 Transitions mongoImportTransitions = MongoImport.instance().transitions(version)
   .replace(Start.to(MongoImportArguments.class).initializedWith(arguments))
   .addAll(Derive.given(RunningMongodProcess.class).state(ServerAddress.class)
@@ -151,7 +147,6 @@ String script = "db.mongoShellTest.insertOne( { name: 'a' } );\n"
   + "db.mongoShellTest.insertOne( { name: 'B' } );\n"
   + "db.mongoShellTest.insertOne( { name: 'cc' } );\n";
 
-Version.Main version = Version.Main.PRODUCTION;
 Path scriptFile = Files.createTempFile(tempDir, "mongoshell", "");
 Files.write(scriptFile, script.getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING);
 
@@ -164,7 +159,8 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> mongoD = Mongod.instanc
   .walker()
   .initState(StateID.of(RunningMongodProcess.class))) {
 
-  Transitions mongoShellTransitions = MongoShell.instance().transitions(version)
+  // mongo shell support removed with version >=6.x.x
+  Transitions mongoShellTransitions = MongoShell.instance().transitions(Version.Main.V5_0)
     .replace(Start.to(MongoShellArguments.class)
       .initializedWith(mongoShellArguments))
     .addAll(Start.to(ServerAddress.class).initializedWith(mongoD.current().getServerAddress()));

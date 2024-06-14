@@ -62,6 +62,8 @@ We use http://www.apache.org/licenses/LICENSE-2.0
 
 #### Unreleased
 
+- mongo shell binary removal fix
+
 #### 4.14.0
 
 - mongodb 7.0.11 support

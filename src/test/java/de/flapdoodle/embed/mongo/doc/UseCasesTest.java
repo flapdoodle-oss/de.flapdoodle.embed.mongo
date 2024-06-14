@@ -27,6 +27,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import de.flapdoodle.embed.mongo.commands.*;
 import de.flapdoodle.embed.mongo.distribution.Version;
+import de.flapdoodle.embed.mongo.packageresolver.Feature;
 import de.flapdoodle.embed.mongo.transitions.*;
 import de.flapdoodle.embed.mongo.types.DatabaseDir;
 import de.flapdoodle.reverse.StateID;
@@ -62,13 +63,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UseCasesTest {
 
+	Version.Main version = Version.Main.V7_0;
+
 	@RegisterExtension
 	public static final Recording recording = Recorder.with("UseCases.md", TabSize.spaces(2));
 
 	@Test
 	public void startMongoD() {
 		recording.begin();
-		Transitions transitions = Mongod.instance().transitions(Version.Main.PRODUCTION);
+		Transitions transitions = Mongod.instance().transitions(version);
 
 		try (TransitionWalker.ReachedState<RunningMongodProcess> running = transitions.walker()
 			.initState(StateID.of(RunningMongodProcess.class))) {
@@ -98,7 +101,7 @@ public class UseCasesTest {
 		Transitions transitions = Mongod.instance()
 			.withDatabaseDir(Start.to(DatabaseDir.class)
 				.initializedWith(DatabaseDir.of(persistentDir)))
-			.transitions(Version.Main.PRODUCTION);
+			.transitions(version);
 
 		try (TransitionWalker.ReachedState<RunningMongodProcess> running = transitions.walker()
 			.initState(StateID.of(RunningMongodProcess.class))) {
@@ -138,8 +141,6 @@ public class UseCasesTest {
 			.isJsonArray(true)
 			.upsertDocuments(true)
 			.build();
-
-		Version.Main version = Version.Main.V7_0;
 
 		try (TransitionWalker.ReachedState<RunningMongodProcess> mongoD = Mongod.instance().transitions(version)
 			.walker()
@@ -189,8 +190,6 @@ public class UseCasesTest {
 			.upsertDocuments(true)
 			.build();
 
-		Version.Main version = Version.Main.PRODUCTION;
-
 		Transitions mongoImportTransitions = MongoImport.instance().transitions(version)
 			.replace(Start.to(MongoImportArguments.class).initializedWith(arguments))
 			.addAll(Derive.given(RunningMongodProcess.class).state(ServerAddress.class)
@@ -235,7 +234,6 @@ public class UseCasesTest {
 			+ "db.mongoShellTest.insertOne( { name: 'B' } );\n"
 			+ "db.mongoShellTest.insertOne( { name: 'cc' } );\n";
 
-		Version.Main version = Version.Main.PRODUCTION;
 		Path scriptFile = Files.createTempFile(tempDir, "mongoshell", "");
 		Files.write(scriptFile, script.getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING);
 
@@ -248,7 +246,8 @@ public class UseCasesTest {
 			.walker()
 			.initState(StateID.of(RunningMongodProcess.class))) {
 
-			Transitions mongoShellTransitions = MongoShell.instance().transitions(version)
+			// mongo shell support removed with version >=6.x.x
+			Transitions mongoShellTransitions = MongoShell.instance().transitions(Version.Main.V5_0)
 				.replace(Start.to(MongoShellArguments.class)
 					.initializedWith(mongoShellArguments))
 				.addAll(Start.to(ServerAddress.class).initializedWith(mongoD.current().getServerAddress()));

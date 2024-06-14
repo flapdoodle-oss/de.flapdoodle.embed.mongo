@@ -20,8 +20,11 @@
  */
 package de.flapdoodle.embed.mongo.transitions;
 
+import de.flapdoodle.checks.Preconditions;
 import de.flapdoodle.embed.mongo.commands.MongoShellArguments;
 import de.flapdoodle.embed.mongo.packageresolver.Command;
+import de.flapdoodle.embed.mongo.packageresolver.Feature;
+import de.flapdoodle.embed.mongo.packageresolver.FeatureSetResolver;
 import de.flapdoodle.embed.process.distribution.Version;
 import de.flapdoodle.reverse.StateID;
 import de.flapdoodle.reverse.TransitionWalker;
@@ -33,6 +36,9 @@ import org.immutables.value.Value;
 public class MongoShell implements WorkspaceDefaults, VersionAndPlatform, ProcessDefaults, CommandName, ExtractFileSet {
 
 	public Transitions transitions(de.flapdoodle.embed.process.distribution.Version version) {
+		boolean hasMongoShellBinary = FeatureSetResolver.defaultInstance().featuresOf(version).enabled(Feature.HAS_MONGO_SHELL_BINRAY);
+		Preconditions.checkArgument(hasMongoShellBinary,"distribution for "+version+" does not provide a mongo shell binary");
+
 		return workspaceDefaults()
 			.addAll(versionAndPlatform())
 			.addAll(processDefaults())
