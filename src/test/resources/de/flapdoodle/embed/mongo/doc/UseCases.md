@@ -40,3 +40,10 @@ ${startMongoShell}
 ```
 
 ![start mongod](${startMongoShell.graph.svg})
+
+Because mongo shell binary is missing since version >= 6.x.x you may emulate this with a
+listener called after server start:
+
+```java
+${emulateMongoShell}
+```

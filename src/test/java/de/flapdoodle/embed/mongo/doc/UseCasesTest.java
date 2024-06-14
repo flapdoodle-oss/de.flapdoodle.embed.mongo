@@ -25,15 +25,13 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.DeleteResult;
 import de.flapdoodle.embed.mongo.commands.*;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.packageresolver.Feature;
 import de.flapdoodle.embed.mongo.transitions.*;
 import de.flapdoodle.embed.mongo.types.DatabaseDir;
-import de.flapdoodle.reverse.StateID;
-import de.flapdoodle.reverse.TransitionMapping;
-import de.flapdoodle.reverse.TransitionWalker;
-import de.flapdoodle.reverse.Transitions;
+import de.flapdoodle.reverse.*;
 import de.flapdoodle.reverse.graph.TransitionGraph;
 import de.flapdoodle.reverse.transitions.Derive;
 import de.flapdoodle.reverse.transitions.Start;
@@ -55,6 +53,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.UUID;
 
@@ -269,6 +268,50 @@ public class UseCasesTest {
 			try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
 				MongoDatabase db = mongo.getDatabase("db");
 				MongoCollection<Document> col = db.getCollection("mongoShellTest");
+
+				ArrayList<String> names = col.find()
+					.map(doc -> doc.getString("name"))
+					.into(new ArrayList<>());
+
+				assertThat(names).containsExactlyInAnyOrder("a", "B", "cc");
+			}
+		}
+		recording.end();
+	}
+
+	@Test
+	public void emulateMongoShell() {
+		recording.begin();
+		Listener listener= Listener.typedBuilder()
+			.onStateReached(StateID.of(RunningMongodProcess.class), rm -> {
+				com.mongodb.ServerAddress serverAddress = serverAddress(rm.getServerAddress());
+				try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
+					MongoDatabase db = mongo.getDatabase("db");
+					MongoCollection<Document> col = db.getCollection("mongoShellEmulationTest");
+					col.insertOne(Document.parse("{name: 'a'}"));
+					col.insertOne(Document.parse("{name: 'B'}"));
+					col.insertOne(Document.parse("{name: 'cc'}"));
+				}
+			})
+			.onStateTearDown(StateID.of(RunningMongodProcess.class), rm -> {
+				com.mongodb.ServerAddress serverAddress = serverAddress(rm.getServerAddress());
+				try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
+					MongoDatabase db = mongo.getDatabase("db");
+					MongoCollection<Document> col = db.getCollection("mongoShellEmulationTest");
+					DeleteResult deleted = col.deleteMany(Document.parse("{}"));
+					assertThat(deleted.getDeletedCount()).isEqualTo(3);
+				}
+			})
+			.build();
+
+		try (TransitionWalker.ReachedState<RunningMongodProcess> mongoD = Mongod.instance().transitions(version)
+			.walker()
+			.initState(StateID.of(RunningMongodProcess.class), listener)) {
+
+			com.mongodb.ServerAddress serverAddress = serverAddress(mongoD.current().getServerAddress());
+			try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
+				MongoDatabase db = mongo.getDatabase("db");
+				MongoCollection<Document> col = db.getCollection("mongoShellEmulationTest");
 
 				ArrayList<String> names = col.find()
 					.map(doc -> doc.getString("name"))

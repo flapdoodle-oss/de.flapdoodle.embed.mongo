@@ -186,3 +186,47 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> mongoD = Mongod.instanc
 ```
 
 ![start mongod](UseCase-MongoShell.svg)
+
+Because mongo shell binary is missing since version >= 6.x.x you may emulate this with a
+listener called after server start:
+
+```java
+Listener listener= Listener.typedBuilder()
+  .onStateReached(StateID.of(RunningMongodProcess.class), rm -> {
+    com.mongodb.ServerAddress serverAddress = serverAddress(rm.getServerAddress());
+    try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
+      MongoDatabase db = mongo.getDatabase("db");
+      MongoCollection<Document> col = db.getCollection("mongoShellEmulationTest");
+      col.insertOne(Document.parse("{name: 'a'}"));
+      col.insertOne(Document.parse("{name: 'B'}"));
+      col.insertOne(Document.parse("{name: 'cc'}"));
+    }
+  })
+  .onStateTearDown(StateID.of(RunningMongodProcess.class), rm -> {
+    com.mongodb.ServerAddress serverAddress = serverAddress(rm.getServerAddress());
+    try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
+      MongoDatabase db = mongo.getDatabase("db");
+      MongoCollection<Document> col = db.getCollection("mongoShellEmulationTest");
+      DeleteResult deleted = col.deleteMany(Document.parse("{}"));
+      assertThat(deleted.getDeletedCount()).isEqualTo(3);
+    }
+  })
+  .build();
+
+try (TransitionWalker.ReachedState<RunningMongodProcess> mongoD = Mongod.instance().transitions(version)
+  .walker()
+  .initState(StateID.of(RunningMongodProcess.class), listener)) {
+
+  com.mongodb.ServerAddress serverAddress = serverAddress(mongoD.current().getServerAddress());
+  try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
+    MongoDatabase db = mongo.getDatabase("db");
+    MongoCollection<Document> col = db.getCollection("mongoShellEmulationTest");
+
+    ArrayList<String> names = col.find()
+      .map(doc -> doc.getString("name"))
+      .into(new ArrayList<>());
+
+    assertThat(names).containsExactlyInAnyOrder("a", "B", "cc");
+  }
+}
+```
