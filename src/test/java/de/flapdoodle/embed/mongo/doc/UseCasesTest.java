@@ -25,14 +25,9 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import de.flapdoodle.embed.mongo.commands.ImmutableMongoImportArguments;
-import de.flapdoodle.embed.mongo.commands.MongoImportArguments;
-import de.flapdoodle.embed.mongo.commands.ServerAddress;
+import de.flapdoodle.embed.mongo.commands.*;
 import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.mongo.transitions.ExecutedMongoImportProcess;
-import de.flapdoodle.embed.mongo.transitions.MongoImport;
-import de.flapdoodle.embed.mongo.transitions.Mongod;
-import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
+import de.flapdoodle.embed.mongo.transitions.*;
 import de.flapdoodle.embed.mongo.types.DatabaseDir;
 import de.flapdoodle.reverse.StateID;
 import de.flapdoodle.reverse.TransitionMapping;
@@ -54,8 +49,10 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
@@ -142,7 +139,7 @@ public class UseCasesTest {
 			.upsertDocuments(true)
 			.build();
 
-		Version.Main version = Version.Main.PRODUCTION;
+		Version.Main version = Version.Main.V7_0;
 
 		try (TransitionWalker.ReachedState<RunningMongodProcess> mongoD = Mongod.instance().transitions(version)
 			.walker()
@@ -231,6 +228,58 @@ public class UseCasesTest {
 		recording.file("graph.svg", "UseCase-Mongod-MongoImport.svg", asSvg(dot));
 	}
 
+	@Test
+	public void startMongoShell(@TempDir Path tempDir) throws IOException {
+		recording.begin();
+		String script = "db.mongoShellTest.insertOne( { name: 'a' } );\n"
+			+ "db.mongoShellTest.insertOne( { name: 'B' } );\n"
+			+ "db.mongoShellTest.insertOne( { name: 'cc' } );\n";
+
+		Version.Main version = Version.Main.PRODUCTION;
+		Path scriptFile = Files.createTempFile(tempDir, "mongoshell", "");
+		Files.write(scriptFile, script.getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING);
+
+		ImmutableMongoShellArguments mongoShellArguments = MongoShellArguments.builder()
+			.dbName("db")
+			.scriptName(scriptFile.toAbsolutePath().toString())
+			.build();
+
+		try (TransitionWalker.ReachedState<RunningMongodProcess> mongoD = Mongod.instance().transitions(version)
+			.walker()
+			.initState(StateID.of(RunningMongodProcess.class))) {
+
+			Transitions mongoShellTransitions = MongoShell.instance().transitions(version)
+				.replace(Start.to(MongoShellArguments.class)
+					.initializedWith(mongoShellArguments))
+				.addAll(Start.to(ServerAddress.class).initializedWith(mongoD.current().getServerAddress()));
+
+			try (TransitionWalker.ReachedState<ExecutedMongoShellProcess> executed = mongoShellTransitions.walker()
+				.initState(StateID.of(ExecutedMongoShellProcess.class))) {
+				recording.end();
+				assertThat(executed.current().returnCode())
+					.describedAs("mongo shell was successful")
+					.isEqualTo(0);
+
+				String dot = TransitionGraph.edgeGraphAsDot("mongoShell", mongoShellTransitions);
+				recording.file("graph.svg", "UseCase-MongoShell.svg", asSvg(dot));
+
+				recording.begin();
+			}
+
+			com.mongodb.ServerAddress serverAddress = serverAddress(mongoD.current().getServerAddress());
+			try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
+				MongoDatabase db = mongo.getDatabase("db");
+				MongoCollection<Document> col = db.getCollection("mongoShellTest");
+
+				ArrayList<String> names = col.find()
+					.map(doc -> doc.getString("name"))
+					.into(new ArrayList<>());
+
+				assertThat(names).containsExactlyInAnyOrder("a", "B", "cc");
+			}
+		}
+		recording.end();
+	}
 
 	private byte[] asSvg(String dot) {
 		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {

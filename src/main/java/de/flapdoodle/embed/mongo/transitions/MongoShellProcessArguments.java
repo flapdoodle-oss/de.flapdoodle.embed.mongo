@@ -31,7 +31,7 @@ public abstract class MongoShellProcessArguments extends MongoToolsProcessArgume
 	@Override
 	@Value.Auxiliary
 	public String transitionLabel() {
-		return "Create mongoDump arguments";
+		return "Create mongoShell arguments";
 	}
 
 	@Override

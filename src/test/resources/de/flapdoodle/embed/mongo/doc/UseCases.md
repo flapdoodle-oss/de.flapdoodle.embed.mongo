@@ -32,3 +32,11 @@ ${startMongoImportAsOneTransition}
 
 ![start mongod](${startMongoImportAsOneTransition.graph.svg})
 
+
+## execute mongo shell with running mongod server
+
+```java
+${startMongoShell}
+```
+
+![start mongod](${startMongoShell.graph.svg})

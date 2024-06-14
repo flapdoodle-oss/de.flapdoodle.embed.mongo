@@ -65,7 +65,7 @@ MongoImportArguments arguments = MongoImportArguments.builder()
   .upsertDocuments(true)
   .build();
 
-Version.Main version = Version.Main.PRODUCTION;
+Version.Main version = Version.Main.V7_0;
 
 try (TransitionWalker.ReachedState<RunningMongodProcess> mongoD = Mongod.instance().transitions(version)
   .walker()
@@ -142,3 +142,51 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> mongoD = mongoImportTra
 ```
 
 ![start mongod](UseCase-Mongod-MongoImport.svg)
+
+
+## execute mongo shell with running mongod server
+
+```java
+String script = "db.mongoShellTest.insertOne( { name: 'a' } );\n"
+  + "db.mongoShellTest.insertOne( { name: 'B' } );\n"
+  + "db.mongoShellTest.insertOne( { name: 'cc' } );\n";
+
+Version.Main version = Version.Main.PRODUCTION;
+Path scriptFile = Files.createTempFile(tempDir, "mongoshell", "");
+Files.write(scriptFile, script.getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING);
+
+ImmutableMongoShellArguments mongoShellArguments = MongoShellArguments.builder()
+  .dbName("db")
+  .scriptName(scriptFile.toAbsolutePath().toString())
+  .build();
+
+try (TransitionWalker.ReachedState<RunningMongodProcess> mongoD = Mongod.instance().transitions(version)
+  .walker()
+  .initState(StateID.of(RunningMongodProcess.class))) {
+
+  Transitions mongoShellTransitions = MongoShell.instance().transitions(version)
+    .replace(Start.to(MongoShellArguments.class)
+      .initializedWith(mongoShellArguments))
+    .addAll(Start.to(ServerAddress.class).initializedWith(mongoD.current().getServerAddress()));
+
+  try (TransitionWalker.ReachedState<ExecutedMongoShellProcess> executed = mongoShellTransitions.walker()
+    .initState(StateID.of(ExecutedMongoShellProcess.class))) {
+...
+
+  }
+
+  com.mongodb.ServerAddress serverAddress = serverAddress(mongoD.current().getServerAddress());
+  try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
+    MongoDatabase db = mongo.getDatabase("db");
+    MongoCollection<Document> col = db.getCollection("mongoShellTest");
+
+    ArrayList<String> names = col.find()
+      .map(doc -> doc.getString("name"))
+      .into(new ArrayList<>());
+
+    assertThat(names).containsExactlyInAnyOrder("a", "B", "cc");
+  }
+}
+```
+
+![start mongod](UseCase-MongoShell.svg)
