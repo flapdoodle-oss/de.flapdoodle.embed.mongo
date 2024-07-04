@@ -55,14 +55,19 @@ We use http://www.apache.org/licenses/LICENSE-2.0
 	<dependency>
 		<groupId>de.flapdoodle.embed</groupId>
 		<artifactId>de.flapdoodle.embed.mongo</artifactId>
-		<version>4.14.0</version>
+		<version>4.15.0</version>
 	</dependency>
 
 ### Changelog
 
 #### Unreleased
 
+#### 4.15.0
+
 - mongo shell binary removal fix
+- alpine linux detection
+- mongodb 7.0.12 support
+- os detection fix (use best version if two matches)
 
 #### 4.14.0
 
