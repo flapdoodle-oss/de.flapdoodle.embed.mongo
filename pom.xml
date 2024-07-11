@@ -444,7 +444,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.26.0</version>
+            <version>3.26.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -524,12 +524,12 @@
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.process</artifactId>
-            <version>4.12.0</version>
+            <version>4.13.0</version>
         </dependency>
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo.packageresolver</artifactId>
-            <version>4.15.0</version>
+            <version>4.16.0</version>
         </dependency>
     </dependencies>
     <repositories>
