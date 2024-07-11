@@ -13,7 +13,7 @@
     <groupId>de.flapdoodle.embed</groupId>
     <artifactId>de.flapdoodle.embed.mongo</artifactId>
     <name>Flapdoodle Embedded MongoDB</name>
-    <version>4.15.1-SNAPSHOT</version>
+    <version>4.16.0</version>
     <packaging>bundle</packaging>
 
     <description>A embedded mongodb ...</description>
@@ -40,7 +40,7 @@
         <connection>scm:git:git@github.com:flapdoodle-oss/de.flapdoodle.embed.mongo.git</connection>
         <developerConnection>scm:git:git@github.com:flapdoodle-oss/de.flapdoodle.embed.mongo.git</developerConnection>
         <url>git@github.com:flapdoodle-oss/de.flapdoodle.embed.mongo.git</url>
-        <tag>HEAD</tag>
+        <tag>de.flapdoodle.embed.mongo-4.16.0</tag>
     </scm>
 
     <distributionManagement>
