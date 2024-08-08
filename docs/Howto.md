@@ -216,3 +216,9 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instan
 }
 
 ```
+
+### Override artifact download path
+
+By default, artifacts are stored in `.embedmongo` in the user's home directory.
+
+Override this behavior by setting the `EMBEDDED_MONGO_ARTIFACTS` environment variable.
