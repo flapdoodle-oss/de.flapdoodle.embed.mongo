@@ -45,9 +45,9 @@ import de.flapdoodle.embed.process.io.ProcessOutput;
 import de.flapdoodle.embed.process.io.Processors;
 import de.flapdoodle.embed.process.io.directories.PersistentDir;
 import de.flapdoodle.embed.process.net.DownloadToPath;
-import de.flapdoodle.embed.process.net.HttpProxyFactory;
 import de.flapdoodle.embed.process.runtime.Network;
 import de.flapdoodle.embed.process.transitions.DownloadPackage;
+import de.flapdoodle.net.Proxys;
 import de.flapdoodle.os.BitSize;
 import de.flapdoodle.os.CPUType;
 import de.flapdoodle.os.CommonOS;
@@ -158,7 +158,7 @@ public class CustomizationsTest {
 			public DownloadPackage downloadPackage() {
 				return DownloadPackage.withDefaults()
 					.withDownloadConfig(DownloadConfig.defaults()
-						.withProxyFactory(new HttpProxyFactory("fooo", 1234)));
+						.withProxyFactory(() -> Proxys.httpProxy("fooo", 1234)));
 			}
 		};
 		recording.end();

@@ -33,9 +33,13 @@ ${useBasicAuthInDownloadUrl}
 ``` 
 
 ## Customize Proxy for Download
+
 ```java
 ${testCustomProxy}
 ```
+
+... or use system properties as described in [JDK Networking Properties](https://docs.oracle.com/javase/8/docs/api/java/net/doc-files/net-properties.html).
+There is also an experimental [environment variable support](https://github.com/flapdoodle-oss/de.flapdoodle.java8/blob/master/docs/URLConnections.md#enable-env-variable-httpproxy-detection).
 
 ## Customize Downloader Implementation
 ```java

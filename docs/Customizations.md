@@ -51,16 +51,20 @@ Mongod mongod = new Mongod() {
 ``` 
 
 ## Customize Proxy for Download
+
 ```java
 Mongod mongod = new Mongod() {
   @Override
   public DownloadPackage downloadPackage() {
     return DownloadPackage.withDefaults()
       .withDownloadConfig(DownloadConfig.defaults()
-        .withProxyFactory(new HttpProxyFactory("fooo", 1234)));
+        .withProxyFactory(() -> Proxys.httpProxy("fooo", 1234)));
   }
 };
 ```
+
+... or use system properties as described in [JDK Networking Properties](https://docs.oracle.com/javase/8/docs/api/java/net/doc-files/net-properties.html).
+There is also an experimental [environment variable support](https://github.com/flapdoodle-oss/de.flapdoodle.java8/blob/master/docs/URLConnections.md#enable-env-variable-httpproxy-detection).
 
 ## Customize Downloader Implementation
 ```java
