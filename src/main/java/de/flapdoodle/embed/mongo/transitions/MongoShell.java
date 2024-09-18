@@ -33,13 +33,14 @@ import de.flapdoodle.reverse.transitions.Start;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public class MongoShell implements WorkspaceDefaults, VersionAndPlatform, ProcessDefaults, CommandName, ExtractFileSet {
+public class MongoShell implements Environment, WorkspaceDefaults, VersionAndPlatform, ProcessDefaults, CommandName, ExtractFileSet {
 
 	public Transitions transitions(de.flapdoodle.embed.process.distribution.Version version) {
 		boolean hasMongoShellBinary = FeatureSetResolver.defaultInstance().featuresOf(version).enabled(Feature.HAS_MONGO_SHELL_BINRAY);
 		Preconditions.checkArgument(hasMongoShellBinary,"distribution for "+version+" does not provide a mongo shell binary");
 
 		return workspaceDefaults()
+			.addAll(environment())
 			.addAll(versionAndPlatform())
 			.addAll(processDefaults())
 			.addAll(commandNames())

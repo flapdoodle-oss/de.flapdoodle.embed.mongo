@@ -51,6 +51,8 @@ ${testCustomDownloader}
 ${testCustomizeArtifactStorage}
 ```
 
+.. or just by setting system env variable '${testCustomizeArtifactStorageENV.name}' or system property '${testCustomizeArtifactStorageSystemProperty.name}'. 
+
 ## Custom database directory
 
 If you set a custom database directory, it will not be deleted after shutdown

@@ -20,6 +20,7 @@
  */
 package de.flapdoodle.embed.mongo.doc;
 
+import com.google.common.collect.ImmutableMap;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -29,12 +30,11 @@ import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.examples.FileStreamProcessor;
 import de.flapdoodle.embed.mongo.packageresolver.*;
+import de.flapdoodle.embed.mongo.transitions.ExtractFileSet;
 import de.flapdoodle.embed.mongo.transitions.Mongod;
 import de.flapdoodle.embed.mongo.transitions.PackageOfCommandDistribution;
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
-import de.flapdoodle.embed.mongo.types.DatabaseDir;
-import de.flapdoodle.embed.mongo.types.DistributionBaseUrl;
-import de.flapdoodle.embed.mongo.types.StartTimeout;
+import de.flapdoodle.embed.mongo.types.*;
 import de.flapdoodle.embed.process.config.DownloadConfig;
 import de.flapdoodle.embed.process.config.TimeoutConfig;
 import de.flapdoodle.embed.process.config.store.FileSet;
@@ -200,6 +200,44 @@ public class CustomizationsTest {
 			}
 		};
 		recording.end();
+		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
+			assertRunningMongoDB(running);
+		}
+	}
+
+	@Test
+	public void testCustomizeArtifactStorageENV() {
+		String pathAsString = PersistentDir.inUserHome(".embeddedMongodbCustomPath").mapToUncheckedException(RuntimeException::new).get().value().toString();
+
+		String key = ExtractFileSet.ARTIFACT_STORE_ENV_NAME;
+		recording.output("name", key);
+
+		Mongod mongod = new Mongod() {
+			@Override
+			public Transition<SystemEnv> systemEnv() {
+				return Start.to(SystemEnv.class)
+					.initializedWith(SystemEnv.of(ImmutableMap.of(key, pathAsString)));
+			}
+		};
+		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
+			assertRunningMongoDB(running);
+		}
+	}
+
+	@Test
+	public void testCustomizeArtifactStorageSystemProperty() {
+		String pathAsString = PersistentDir.inUserHome(".embeddedMongodbCustomPath").mapToUncheckedException(RuntimeException::new).get().value().toString();
+
+		String key = ExtractFileSet.ARTIFACT_STORE_PROPERTY_NAME;
+		recording.output("name", key);
+
+		Mongod mongod = new Mongod() {
+			@Override
+			public Transition<SystemProperties> systemProperties() {
+				return Start.to(SystemProperties.class)
+					.initializedWith(SystemProperties.of(ImmutableMap.of(key, pathAsString)));
+			}
+		};
 		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
 			assertRunningMongoDB(running);
 		}

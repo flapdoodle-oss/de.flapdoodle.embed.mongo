@@ -94,6 +94,8 @@ Mongod mongod = new Mongod() {
 };
 ```
 
+.. or just by setting system env variable 'EMBEDDED_MONGO_ARTIFACTS' or system property 'de.flapdoodle.embed.mongo.artifacts'. 
+
 ## Custom database directory
 
 If you set a custom database directory, it will not be deleted after shutdown

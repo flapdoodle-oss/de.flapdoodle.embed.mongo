@@ -21,6 +21,7 @@
 package de.flapdoodle.embed.mongo.transitions;
 
 import de.flapdoodle.embed.mongo.types.SystemEnv;
+import de.flapdoodle.embed.mongo.types.SystemProperties;
 import de.flapdoodle.embed.process.archives.ExtractedFileSet;
 import de.flapdoodle.embed.process.config.store.Package;
 import de.flapdoodle.embed.process.io.directories.PersistentDir;
@@ -36,31 +37,24 @@ import de.flapdoodle.reverse.StateID;
 import de.flapdoodle.reverse.Transition;
 import de.flapdoodle.reverse.Transitions;
 import de.flapdoodle.reverse.transitions.Derive;
+import de.flapdoodle.reverse.transitions.Join;
 import de.flapdoodle.reverse.transitions.Start;
-import de.flapdoodle.types.Try;
 import org.immutables.value.Value;
 
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.PosixFileAttributes;
-import java.util.Map;
 import java.util.Optional;
 
 public interface ExtractFileSet {
-
-	@Value.Default
-	default Transition<SystemEnv> systemEnv() {
-		return Start.to(SystemEnv.class)
-			.providedBy(() -> SystemEnv.of(System.getenv()));
-	}
+	String ARTIFACT_STORE_PROPERTY_NAME = "de.flapdoodle.embed.mongo.artifacts";
+	String ARTIFACT_STORE_ENV_NAME = "EMBEDDED_MONGO_ARTIFACTS";
 
 	@Value.Default
 	default Transition<PersistentDir> persistentBaseDir() {
-		return Derive.given(SystemEnv.class)
+		return Join.given(SystemEnv.class).and(SystemProperties.class)
 			.state(PersistentDir.class)
-			.deriveBy(systemEnv -> Optional.ofNullable(systemEnv.value().get("EMBEDDED_MONGO_ARTIFACTS"))
+			.deriveBy((systemEnv, systemProperties) -> Optional.ofNullable(
+					systemProperties.value().getOrDefault(ARTIFACT_STORE_PROPERTY_NAME,
+						systemEnv.value().get(ARTIFACT_STORE_ENV_NAME)))
 				.map(Paths::get)
 				.map(PersistentDir::of)
 				.orElseGet(PersistentDir.inUserHome(".embedmongo")
@@ -82,7 +76,7 @@ public interface ExtractFileSet {
 			.deriveBy(baseDir -> new ContentHashExtractedFileSetStore(baseDir.value().resolve("fileSets")))
 			.withTransitionLabel("extractedFileSetStore");
 	}
-	
+
 	@Value.Default
 	default DownloadPackage downloadPackage() {
 		return DownloadPackage.withDefaults();
@@ -108,7 +102,6 @@ public interface ExtractFileSet {
 	@Value.Auxiliary
 	default Transitions extractFileSet() {
 		return Transitions.from(
-			systemEnv(),
 			persistentBaseDir(),
 			downloadCache(),
 			packageOfDistribution(),

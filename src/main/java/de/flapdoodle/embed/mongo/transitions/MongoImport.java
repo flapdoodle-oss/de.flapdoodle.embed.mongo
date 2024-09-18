@@ -30,9 +30,10 @@ import de.flapdoodle.reverse.transitions.Start;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public class MongoImport implements WorkspaceDefaults, VersionAndPlatform, ProcessDefaults, CommandName, ExtractFileSet {
+public class MongoImport implements Environment, WorkspaceDefaults, VersionAndPlatform, ProcessDefaults, CommandName, ExtractFileSet {
 	public Transitions transitions(de.flapdoodle.embed.process.distribution.Version version) {
 		return workspaceDefaults()
+			.addAll(environment())
 			.addAll(versionAndPlatform())
 			.addAll(processDefaults())
 			.addAll(commandNames())

@@ -33,6 +33,7 @@ import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.packageresolver.Feature;
 import de.flapdoodle.embed.mongo.types.SystemEnv;
+import de.flapdoodle.embed.mongo.types.SystemProperties;
 import de.flapdoodle.embed.process.archives.ExtractedFileSet;
 import de.flapdoodle.embed.process.distribution.Distribution;
 import de.flapdoodle.embed.process.io.directories.PersistentDir;
@@ -97,6 +98,27 @@ class MongodTest {
 		}
 	}
 
+	@Test
+	public void useSystemPropertyForFileSetStore(@TempDir Path tempDir) throws IOException {
+		Path persistentDirInEnv = tempDir.resolve(".embedmongoENV");
+		Files.createDirectory(persistentDirInEnv);
+
+		ImmutableMongod mongodInstance = Mongod.instance()
+			.withSystemProperties(Start.to(SystemProperties.class)
+				.initializedWith(SystemProperties.of(ImmutableMap.of("de.flapdoodle.embed.mongo.artifacts", persistentDirInEnv.toString()))));
+
+		try (TransitionWalker.ReachedState<PersistentDir> withPersistenDir = mongodInstance
+			.transitions(Version.Main.V5_0).walker().initState(StateID.of(PersistentDir.class))) {
+
+			Path expected = tempDir.resolve(".embedmongoENV");
+
+			assertThat(withPersistenDir.current().value())
+				.isEqualTo(expected);
+			assertThat(expected)
+				.exists()
+				.isDirectory();
+		}
+	}
 	@Test
 	public void mustCreateBaseDirToInitFileSetStore(@TempDir Path tempDir) throws IOException {
 		Path baseDir = tempDir.resolve(".embedmongo");

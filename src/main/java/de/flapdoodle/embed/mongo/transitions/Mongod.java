@@ -35,7 +35,7 @@ import org.immutables.value.Value;
 import java.util.Collection;
 
 @Value.Immutable
-public class Mongod implements WorkspaceDefaults, VersionAndPlatform, ProcessDefaults, CommandName, ExtractFileSet {
+public class Mongod implements Environment, WorkspaceDefaults, VersionAndPlatform, ProcessDefaults, CommandName, ExtractFileSet {
 
 	@Value.Default
 	public Transition<MongodArguments> mongodArguments() {
@@ -69,6 +69,7 @@ public class Mongod implements WorkspaceDefaults, VersionAndPlatform, ProcessDef
 	@Value.Auxiliary
 	public Transitions transitions(de.flapdoodle.embed.process.distribution.Version version) {
 		return workspaceDefaults()
+			.addAll(environment())
 			.addAll(versionAndPlatform())
 			.addAll(processDefaults())
 			.addAll(commandNames())
