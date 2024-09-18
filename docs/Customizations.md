@@ -37,7 +37,9 @@ Mongod mongod = new Mongod() {
   }
 };
 ```
-    
+
+... or just by setting system property 'de.flapdoodle.embed.mongo.baseUrl'.
+
 You can provide basic auth information if needed:
 
 ```java
@@ -94,7 +96,7 @@ Mongod mongod = new Mongod() {
 };
 ```
 
-.. or just by setting system env variable 'EMBEDDED_MONGO_ARTIFACTS' or system property 'de.flapdoodle.embed.mongo.artifacts'. 
+... or just by setting system env variable 'EMBEDDED_MONGO_ARTIFACTS' or system property 'de.flapdoodle.embed.mongo.artifacts'. 
 
 ## Custom database directory
 

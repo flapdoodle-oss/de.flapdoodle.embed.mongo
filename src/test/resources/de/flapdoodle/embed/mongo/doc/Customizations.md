@@ -25,7 +25,9 @@ ${increaseStartTimeout}
 ```java
 ${testCustomizeDownloadURL}
 ```
-    
+
+... or just by setting system property '${testCustomizeDownloadURLWithSystemProperty.name}'.
+
 You can provide basic auth information if needed:
 
 ```java
@@ -51,7 +53,7 @@ ${testCustomDownloader}
 ${testCustomizeArtifactStorage}
 ```
 
-.. or just by setting system env variable '${testCustomizeArtifactStorageENV.name}' or system property '${testCustomizeArtifactStorageSystemProperty.name}'. 
+... or just by setting system env variable '${testCustomizeArtifactStorageENV.name}' or system property '${testCustomizeArtifactStorageSystemProperty.name}'. 
 
 ## Custom database directory
 

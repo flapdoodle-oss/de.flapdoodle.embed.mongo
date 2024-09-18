@@ -47,14 +47,8 @@ public interface WorkspaceDefaults {
 			);
 	}
 
-	@Value.Default
-	default Transition<DistributionBaseUrl> distributionBaseUrl() {
-		return Start.to(DistributionBaseUrl.class)
-			.initializedWith(DistributionBaseUrl.of("https://fastdl.mongodb.org"));
-	}
-
 	@Value.Auxiliary
 	default Transitions workspaceDefaults() {
-		return Transitions.from(initTempDirectory(), processWorkingDir(), distributionBaseUrl());
+		return Transitions.from(initTempDirectory(), processWorkingDir());
 	}
 }

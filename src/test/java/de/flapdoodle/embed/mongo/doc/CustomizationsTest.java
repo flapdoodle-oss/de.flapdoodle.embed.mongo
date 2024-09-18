@@ -30,10 +30,7 @@ import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.examples.FileStreamProcessor;
 import de.flapdoodle.embed.mongo.packageresolver.*;
-import de.flapdoodle.embed.mongo.transitions.ExtractFileSet;
-import de.flapdoodle.embed.mongo.transitions.Mongod;
-import de.flapdoodle.embed.mongo.transitions.PackageOfCommandDistribution;
-import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
+import de.flapdoodle.embed.mongo.transitions.*;
 import de.flapdoodle.embed.mongo.types.*;
 import de.flapdoodle.embed.process.config.DownloadConfig;
 import de.flapdoodle.embed.process.config.TimeoutConfig;
@@ -145,6 +142,23 @@ public class CustomizationsTest {
 			}
 		};
 		recording.end();
+
+		assertThatThrownBy(() -> mongod.start(Version.Main.PRODUCTION))
+			.isInstanceOf(RuntimeException.class);
+	}
+
+	@Test
+	public void testCustomizeDownloadURLWithSystemProperty() {
+		String key = VersionAndPlatform.BASE_URL;
+		recording.output("name", key);
+		Mongod mongod = new Mongod() {
+
+			@Override
+			public Transition<SystemProperties> systemProperties() {
+				return Start.to(SystemProperties.class)
+					.initializedWith(SystemProperties.of(ImmutableMap.of(key, "http://my.custom.download.domain")));
+			}
+		};
 
 		assertThatThrownBy(() -> mongod.start(Version.Main.PRODUCTION))
 			.isInstanceOf(RuntimeException.class);

@@ -20,16 +20,21 @@
  */
 package de.flapdoodle.embed.mongo.transitions;
 
+import de.flapdoodle.embed.mongo.types.DistributionBaseUrl;
+import de.flapdoodle.embed.mongo.types.SystemProperties;
 import de.flapdoodle.embed.process.distribution.Distribution;
 import de.flapdoodle.os.CommonOS;
 import de.flapdoodle.os.Platform;
 import de.flapdoodle.reverse.Transition;
 import de.flapdoodle.reverse.Transitions;
+import de.flapdoodle.reverse.transitions.Derive;
 import de.flapdoodle.reverse.transitions.Join;
 import de.flapdoodle.reverse.transitions.Start;
 import org.immutables.value.Value;
 
 public interface VersionAndPlatform {
+	String BASE_URL="de.flapdoodle.embed.mongo.baseUrl";
+
 	@Value.Default
 	default Transition<Platform> platform() {
 		return Start.to(Platform.class).providedBy(() -> Platform.detect(CommonOS.list()));
@@ -42,11 +47,20 @@ public interface VersionAndPlatform {
 			.withTransitionLabel("version + platform");
 	}
 
+	@Value.Default
+	default Transition<DistributionBaseUrl> distributionBaseUrl() {
+		return Derive.given(SystemProperties.class)
+			.state(DistributionBaseUrl.class)
+			.deriveBy(systemProperties -> DistributionBaseUrl.of(systemProperties.value()
+				.getOrDefault(BASE_URL, "https://fastdl.mongodb.org")));
+	}
+
 	@Value.Auxiliary
 	default Transitions versionAndPlatform() {
 		return Transitions.from(
 			platform(),
-			distribution()
+			distribution(),
+			distributionBaseUrl()
 		);
 	}
 }

@@ -1,5 +1,6 @@
 package de.flapdoodle.embed.mongo.transitions;
 
+import de.flapdoodle.embed.mongo.types.DistributionBaseUrl;
 import de.flapdoodle.embed.mongo.types.SystemEnv;
 import de.flapdoodle.embed.mongo.types.SystemProperties;
 import de.flapdoodle.reverse.Transition;
