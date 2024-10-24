@@ -271,6 +271,25 @@ class MongodTest {
 	}
 
 	@Test
+	public void startMongodOnLocalhost() throws UnknownHostException {
+		Net net = Net.defaults();
+
+		Mongod mongod = new Mongod() {
+			@Override public Transition<Net> net() {
+				return Start.to(Net.class)
+					.initializedWith(net);
+			}
+		};
+
+		try (TransitionWalker.ReachedState<RunningMongodProcess> outerMongod = mongod.start(Version.Main.PRODUCTION)) {
+			System.err.println("---------------------------");
+			System.err.println(net.getServerAddress().getHostAddress());
+			System.err.println(outerMongod.current().getServerAddress());
+			System.err.println("---------------------------");
+		}
+	}
+
+	@Test
 	public void startMongodOnNonFreePort() {
 		Net net = Net.defaults();
 
@@ -371,7 +390,7 @@ class MongodTest {
 
 	@Test
 	void testForDebianVersion() {
-		assertCanExtractArtifact(Distribution.of(Version.Main.V7_0, ImmutablePlatform.builder()
+		assertCanExtractArtifact(Distribution.of(Version.Main.V8_0, ImmutablePlatform.builder()
 			.operatingSystem(CommonOS.Linux)
 			.architecture(CommonArchitecture.ARM_64)
 			.version(DebianVersion.DEBIAN_12)

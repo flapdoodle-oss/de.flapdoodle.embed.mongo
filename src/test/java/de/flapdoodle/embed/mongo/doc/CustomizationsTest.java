@@ -352,7 +352,7 @@ public class CustomizationsTest {
 				.build()));
 		recording.end();
 
-		try (TransitionWalker.ReachedState<Package> reachedState = customizedInstance.transitions(Version.Main.V7_0)
+		try (TransitionWalker.ReachedState<Package> reachedState = customizedInstance.transitions(Version.Main.V8_0)
 			.walker().initState(StateID.of(Package.class))) {
 			Package resolvedPackage = reachedState.current();
 
@@ -401,12 +401,12 @@ public class CustomizationsTest {
 
 		recording.end();
 
-		try (TransitionWalker.ReachedState<Package> reachedState = customizedInstance.transitions(Version.Main.V7_0)
+		try (TransitionWalker.ReachedState<Package> reachedState = customizedInstance.transitions(Version.Main.V8_0)
 			.walker().initState(StateID.of(Package.class))) {
 			Package resolvedPackage = reachedState.current();
 
 			assertThat(resolvedPackage.url())
-				.isEqualTo("http://some-local-server/relativePath-7.0.12.tgz");
+				.isEqualTo("http://some-local-server/relativePath-8.0.1.tgz");
 		}
 	}
 

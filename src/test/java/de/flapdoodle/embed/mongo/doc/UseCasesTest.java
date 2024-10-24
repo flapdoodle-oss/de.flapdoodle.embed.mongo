@@ -62,7 +62,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UseCasesTest {
 
-	Version.Main version = Version.Main.V7_0;
+	Version.Main version = Version.Main.V8_0;
 
 	@RegisterExtension
 	public static final Recording recording = Recorder.with("UseCases.md", TabSize.spaces(2));

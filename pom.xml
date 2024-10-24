@@ -128,7 +128,7 @@
                     <dependency>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>extra-enforcer-rules</artifactId>
-                        <version>1.8.0</version>
+                        <version>1.9.0</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -409,7 +409,7 @@
             org.apache.commons.io,
             org.slf4j
         </osgi.import>
-        <junit.version>5.10.2</junit.version>
+        <junit.version>5.11.3</junit.version>
         <immutables.version>2.10.1</immutables.version>
         <!-- eclipse apt switch -->
         <m2e.apt.activation>jdt_apt</m2e.apt.activation>
@@ -497,7 +497,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>33.2.1-jre</version>
+            <version>33.3.1-jre</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -524,12 +524,12 @@
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.process</artifactId>
-            <version>4.14.0</version>
+            <version>4.15.0</version>
         </dependency>
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo.packageresolver</artifactId>
-            <version>4.17.0</version>
+            <version>4.18.0</version>
         </dependency>
     </dependencies>
     <repositories>
