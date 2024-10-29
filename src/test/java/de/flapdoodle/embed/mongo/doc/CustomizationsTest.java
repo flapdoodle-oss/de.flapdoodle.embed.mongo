@@ -368,7 +368,7 @@ public class CustomizationsTest {
 		PackageFinderRules mongodPackageRules = PackageFinderRules.builder()
 			.addRules(PackageFinderRule.builder()
 				.match(PlatformMatch.withOs(CommonOS.Linux).withBitSize(BitSize.B64).withCpuType(CPUType.X86).withVersion(UbuntuVersion.Ubuntu_22_04)
-					.andThen(DistributionMatch.any(VersionRange.of("7.0.0", "7.1.0"))
+					.andThen(DistributionMatch.any(VersionRange.of("8.0.0", "8.1.0"))
 					))
 				.finder(UrlTemplatePackageFinder.builder()
 					.fileSet(FileSet.builder()
@@ -406,7 +406,7 @@ public class CustomizationsTest {
 			Package resolvedPackage = reachedState.current();
 
 			assertThat(resolvedPackage.url())
-				.isEqualTo("http://some-local-server/relativePath-8.0.1.tgz");
+				.isEqualTo("http://some-local-server/relativePath-8.0.3.tgz");
 		}
 	}
 
