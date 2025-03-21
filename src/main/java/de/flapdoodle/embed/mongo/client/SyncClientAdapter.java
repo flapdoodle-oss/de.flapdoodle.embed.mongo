@@ -26,23 +26,26 @@ import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import de.flapdoodle.embed.mongo.commands.ServerAddress;
-import de.flapdoodle.embed.mongo.config.Storage;
-import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion;
-import de.flapdoodle.reverse.Listener;
 import org.bson.Document;
 
-import java.util.List;
-import java.util.Optional;
-
 public class SyncClientAdapter extends ExecuteMongoClientAction<MongoClient> {
+
+	private final MongoClientSettings clientSettings;
+
+	public SyncClientAdapter(MongoClientSettings clientSettings) {
+		this.clientSettings = clientSettings;
+	}
+
 	@Override
 	protected MongoClient client(ServerAddress serverAddress) {
-		return MongoClients.create("mongodb://" + serverAddress);
+		return MongoClients.create(MongoClientSettings.builder(clientSettings)
+			.applyConnectionString(new ConnectionString("mongodb://" + serverAddress))
+			.build());
 	}
 
 	@Override
 	protected MongoClient client(ServerAddress serverAddress, MongoCredential credential) {
-		return MongoClients.create(MongoClientSettings.builder()
+		return MongoClients.create(MongoClientSettings.builder(clientSettings)
 			.applyConnectionString(new ConnectionString("mongodb://" + serverAddress))
 			.credential(credential)
 			.build());

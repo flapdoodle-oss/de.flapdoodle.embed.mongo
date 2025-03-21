@@ -26,20 +26,21 @@ import com.mongodb.MongoCredential;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import de.flapdoodle.embed.mongo.commands.ServerAddress;
-import de.flapdoodle.embed.mongo.config.Storage;
-import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion;
-import de.flapdoodle.reverse.Listener;
 import org.bson.Document;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class ReactiveClientAdapter extends ExecuteMongoClientAction<MongoClient> {
+
+	private final MongoClientSettings clientSettings;
+
+	public ReactiveClientAdapter(MongoClientSettings clientSettings) {
+		this.clientSettings = clientSettings;
+	}
 
 	@Override
 	protected Document resultOfAction(MongoClient client, MongoClientAction.Action action) {
@@ -51,12 +52,14 @@ public class ReactiveClientAdapter extends ExecuteMongoClientAction<MongoClient>
 
 	@Override
 	protected MongoClient client(ServerAddress serverAddress) {
-		return MongoClients.create("mongodb://"+serverAddress);
+		return MongoClients.create(MongoClientSettings.builder(clientSettings)
+			.applyConnectionString(new ConnectionString("mongodb://"+serverAddress))
+			.build());
 	}
 
 	@Override
 	protected MongoClient client(ServerAddress serverAddress, MongoCredential credential) {
-		return MongoClients.create(MongoClientSettings.builder()
+		return MongoClients.create(MongoClientSettings.builder(clientSettings)
 			.applyConnectionString(new ConnectionString("mongodb://"+serverAddress))
 			.credential(credential)
 			.build());

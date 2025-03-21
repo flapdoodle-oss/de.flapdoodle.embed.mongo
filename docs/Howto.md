@@ -106,7 +106,8 @@ this is an very easy example to use mongos and mongod
 Version.Main version = Version.Main.PRODUCTION;
 Storage storage = Storage.of("testRepSet", 5000);
 
-Listener withRunningMongod = ClientActions.initReplicaSet(new SyncClientAdapter(), version, storage);
+MongoClientSettings clientSettings = MongoClientSettings.builder().build();
+Listener withRunningMongod = ClientActions.initReplicaSet(new SyncClientAdapter(clientSettings), version, storage);
 
 Mongod mongod = new Mongod() {
   @Override
@@ -175,7 +176,8 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> runningMongoD = transit
 ### User/Roles setup
 
 ```java
-SyncClientAdapter clientAdapter = new SyncClientAdapter();
+MongoClientSettings clientSettings = MongoClientSettings.builder().build();
+SyncClientAdapter clientAdapter = new SyncClientAdapter(clientSettings);
 
 Listener withRunningMongod = ClientActions.setupAuthentication(clientAdapter, "admin",
   AuthenticationSetup.of(UsernamePassword.of("i-am-admin", "admin-password"))

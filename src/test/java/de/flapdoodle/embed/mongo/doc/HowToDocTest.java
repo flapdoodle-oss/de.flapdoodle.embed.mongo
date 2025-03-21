@@ -21,6 +21,7 @@
 package de.flapdoodle.embed.mongo.doc;
 
 import com.google.common.io.Resources;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoClient;
@@ -191,7 +192,8 @@ public class HowToDocTest {
 		Version.Main version = Version.Main.PRODUCTION;
 		Storage storage = Storage.of("testRepSet", 5000);
 
-		Listener withRunningMongod = ClientActions.initReplicaSet(new SyncClientAdapter(), version, storage);
+		MongoClientSettings clientSettings = MongoClientSettings.builder().build();
+		Listener withRunningMongod = ClientActions.initReplicaSet(new SyncClientAdapter(clientSettings), version, storage);
 
 		Mongod mongod = new Mongod() {
 			@Override
@@ -265,7 +267,8 @@ public class HowToDocTest {
 	@Test
 	public void setupUserAndRoles() {
 		recording.begin();
-		SyncClientAdapter clientAdapter = new SyncClientAdapter();
+		MongoClientSettings clientSettings = MongoClientSettings.builder().build();
+		SyncClientAdapter clientAdapter = new SyncClientAdapter(clientSettings);
 
 		Listener withRunningMongod = ClientActions.setupAuthentication(clientAdapter, "admin",
 			AuthenticationSetup.of(UsernamePassword.of("i-am-admin", "admin-password"))
