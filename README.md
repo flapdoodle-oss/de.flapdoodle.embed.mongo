@@ -66,6 +66,10 @@ To enable logging you must choose some matching adapter for [slf4j.org](https://
 
 #### Unreleased
 
+#### 4.20.0
+
+- customizable mongo client settings
+
 #### 4.19.0
 
 - dep updates, mongodb up to 8.0.5
