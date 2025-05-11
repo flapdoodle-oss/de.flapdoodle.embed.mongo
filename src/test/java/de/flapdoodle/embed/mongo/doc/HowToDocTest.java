@@ -44,6 +44,7 @@ import de.flapdoodle.embed.mongo.util.FileUtils;
 import de.flapdoodle.reverse.*;
 import de.flapdoodle.reverse.transitions.Derive;
 import de.flapdoodle.reverse.transitions.Start;
+import de.flapdoodle.testdoc.Includes;
 import de.flapdoodle.testdoc.Recorder;
 import de.flapdoodle.testdoc.Recording;
 import de.flapdoodle.testdoc.TabSize;
@@ -65,13 +66,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class HowToDocTest {
 
 	@RegisterExtension
-	public static final Recording recording = Recorder.with("Howto.md", TabSize.spaces(2));
+	public static final Recording recording = Recorder.with("Howto.md", TabSize.spaces(2))
+		.sourceCodeOf("mongoJUnit", MongoJUnitTest.class, Includes.WithoutImports, Includes.WithoutPackage, Includes.Trim);
 
 	@Test
 	public void testStandard() {
 		recording.begin();
 
-		try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance().start(Version.Main.PRODUCTION)) {
+		try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance().start(Version.Main.V8_0)) {
 			com.mongodb.ServerAddress serverAddress = serverAddress(running.current().getServerAddress());
 			try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
 				MongoDatabase db = mongo.getDatabase("test");
@@ -98,7 +100,7 @@ public class HowToDocTest {
 		};
 		recording.end();
 
-		assertThatThrownBy(() -> mongod.start(Version.Main.PRODUCTION))
+		assertThatThrownBy(() -> mongod.start(Version.Main.V8_0))
 			.isInstanceOf(RuntimeException.class);
 	}
 
@@ -111,7 +113,7 @@ public class HowToDocTest {
 			.build();
 		recording.end();
 
-		assertThatThrownBy(() -> mongod.start(Version.Main.PRODUCTION))
+		assertThatThrownBy(() -> mongod.start(Version.Main.V8_0))
 			.isInstanceOf(RuntimeException.class);
 	}
 
@@ -119,7 +121,7 @@ public class HowToDocTest {
 	public void customizeMongodByReplacement() {
 		recording.begin();
 		Transitions mongod = Mongod.instance()
-			.transitions(Version.Main.PRODUCTION)
+			.transitions(Version.Main.V8_0)
 			.replace(Start.to(DistributionBaseUrl.class)
 				.initializedWith(DistributionBaseUrl.of("http://my.custom.download.domain")));
 		recording.end();
@@ -161,7 +163,7 @@ public class HowToDocTest {
 						.withUseNoJournal(false)
 						.withEnableTextSearch(true));
 			}
-		}.transitions(Version.Main.PRODUCTION);
+		}.transitions(Version.Main.V8_0);
 		recording.end();
 	}
 
@@ -175,7 +177,7 @@ public class HowToDocTest {
 			})
 			.build();
 
-		try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance().transitions(Version.Main.PRODUCTION).walker()
+		try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance().transitions(Version.Main.V8_0).walker()
 			.initState(StateID.of(RunningMongodProcess.class), listener)) {
 		}
 
@@ -189,7 +191,7 @@ public class HowToDocTest {
 	@Test
 	public void testMongosAndMongod() {
 		recording.begin();
-		Version.Main version = Version.Main.PRODUCTION;
+		Version.Main version = Version.Main.V8_0;
 		Storage storage = Storage.of("testRepSet", 5000);
 
 		MongoClientSettings clientSettings = MongoClientSettings.builder().build();
@@ -232,7 +234,7 @@ public class HowToDocTest {
 
 		recording.begin();
 
-		Version.Main version = Version.Main.PRODUCTION;
+		Version.Main version = Version.Main.V8_0;
 
 		Transitions transitions = MongoImport.instance().transitions(version)
 			.replace(Start.to(MongoImportArguments.class).initializedWith(MongoImportArguments.builder()
@@ -283,7 +285,7 @@ public class HowToDocTest {
 			.withMongodArguments(
 				Start.to(MongodArguments.class)
 					.initializedWith(MongodArguments.defaults().withAuth(true)))
-			.start(Version.Main.PRODUCTION, withRunningMongod)) {
+			.start(Version.Main.V8_0, withRunningMongod)) {
 
 			try (MongoClient mongo = mongoClient(
 				serverAddress(running.current().getServerAddress()),

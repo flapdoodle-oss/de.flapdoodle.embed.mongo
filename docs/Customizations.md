@@ -191,7 +191,7 @@ Mongod mongod = new Mongod() {
   }
 };
 
-try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
+try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.V8_0)) {
   ServerAddress serverAddress = serverAddress(running.current().getServerAddress());
   try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
     MongoDatabase db = mongo.getDatabase("test");

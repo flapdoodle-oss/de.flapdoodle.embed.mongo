@@ -1,8 +1,8 @@
 ### Usage
-
+                                       
 ```java
 
-try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance().start(Version.Main.PRODUCTION)) {
+try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance().start(Version.Main.V8_0)) {
   com.mongodb.ServerAddress serverAddress = serverAddress(running.current().getServerAddress());
   try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
     MongoDatabase db = mongo.getDatabase("test");
@@ -13,6 +13,42 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instan
   }
 }
 
+```
+
+#### JUnit Test Template
+
+```java
+public class MongoJUnitTest {
+
+  protected TransitionWalker.ReachedState<RunningMongodProcess> running;
+  protected ServerAddress serverAddress;
+
+  @BeforeEach
+  void startMongodb() {
+    ImmutableMongod mongodConfig = Mongod.instance();
+    Version.Main version = Version.Main.V8_0;
+
+    running = mongodConfig.start(version);
+    serverAddress = serverAddress(running.current().getServerAddress());
+  }
+
+  @AfterEach
+  void teardownMongodb() {
+    serverAddress = null;
+    if (running != null) { running.close(); }
+    running = null;
+  }
+
+  @Test
+  void testStuff() {
+    try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
+      MongoDatabase db = mongo.getDatabase("test");
+      MongoCollection<Document> col = db.getCollection("testCol");
+      col.insertOne(new Document("testDoc", new Date()));
+      assertThat(col.countDocuments()).isEqualTo(1L);
+    }
+  }
+}
 ```
 
 #### Customize by Override
@@ -40,7 +76,7 @@ Mongod mongod = Mongod.builder()
 
 ```java
 Transitions mongod = Mongod.instance()
-  .transitions(Version.Main.PRODUCTION)
+  .transitions(Version.Main.V8_0)
   .replace(Start.to(DistributionBaseUrl.class)
     .initializedWith(DistributionBaseUrl.of("http://my.custom.download.domain")));
 ```
@@ -75,7 +111,7 @@ new Mongod() {
         .withUseNoJournal(false)
         .withEnableTextSearch(true));
   }
-}.transitions(Version.Main.PRODUCTION);
+}.transitions(Version.Main.V8_0);
 ```
 
 ### Snapshot database files from temp dir
@@ -89,7 +125,7 @@ Listener listener = Listener.typedBuilder()
   })
   .build();
 
-try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance().transitions(Version.Main.PRODUCTION).walker()
+try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instance().transitions(Version.Main.V8_0).walker()
   .initState(StateID.of(RunningMongodProcess.class), listener)) {
 }
 
@@ -103,7 +139,7 @@ assertThat(destination)
 
 this is an very easy example to use mongos and mongod
 ```java
-Version.Main version = Version.Main.PRODUCTION;
+Version.Main version = Version.Main.V8_0;
 Storage storage = Storage.of("testRepSet", 5000);
 
 MongoClientSettings clientSettings = MongoClientSettings.builder().build();
@@ -142,7 +178,7 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> runningMongod = mongod.
 ### Import JSON file with mongoimport command
 ```java
 
-Version.Main version = Version.Main.PRODUCTION;
+Version.Main version = Version.Main.V8_0;
 
 Transitions transitions = MongoImport.instance().transitions(version)
   .replace(Start.to(MongoImportArguments.class).initializedWith(MongoImportArguments.builder()
@@ -192,7 +228,7 @@ try (TransitionWalker.ReachedState<RunningMongodProcess> running = Mongod.instan
   .withMongodArguments(
     Start.to(MongodArguments.class)
       .initializedWith(MongodArguments.defaults().withAuth(true)))
-  .start(Version.Main.PRODUCTION, withRunningMongod)) {
+  .start(Version.Main.V8_0, withRunningMongod)) {
 
   try (MongoClient mongo = mongoClient(
     serverAddress(running.current().getServerAddress()),

@@ -95,7 +95,7 @@ public class CustomizationsTest {
 				.withPort(12345)))
 			.build();
 		recording.end();
-		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
+		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.V8_0)) {
 			assertRunningMongoDB(running);
 		}
 	}
@@ -109,7 +109,7 @@ public class CustomizationsTest {
 			.build();
 		recording.end();
 		
-		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
+		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.V8_0)) {
 			assertRunningMongoDB(running);
 		}
 	}
@@ -127,7 +127,7 @@ public class CustomizationsTest {
 		};
 		recording.end();
 
-		assertThatThrownBy(() -> mongod.start(Version.Main.PRODUCTION))
+		assertThatThrownBy(() -> mongod.start(Version.Main.V8_0))
 			.isInstanceOf(RuntimeException.class);
 	}
 
@@ -143,7 +143,7 @@ public class CustomizationsTest {
 		};
 		recording.end();
 
-		assertThatThrownBy(() -> mongod.start(Version.Main.PRODUCTION))
+		assertThatThrownBy(() -> mongod.start(Version.Main.V8_0))
 			.isInstanceOf(RuntimeException.class);
 	}
 
@@ -160,7 +160,7 @@ public class CustomizationsTest {
 			}
 		};
 
-		assertThatThrownBy(() -> mongod.start(Version.Main.PRODUCTION))
+		assertThatThrownBy(() -> mongod.start(Version.Main.V8_0))
 			.isInstanceOf(RuntimeException.class);
 	}
 
@@ -176,7 +176,7 @@ public class CustomizationsTest {
 			}
 		};
 		recording.end();
-		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
+		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.V8_0)) {
 			assertRunningMongoDB(running);
 		}
 	}
@@ -197,7 +197,7 @@ public class CustomizationsTest {
 			.withDownloadPackage(DownloadPackage.withDefaults()
 				.withDownloadToPath(custom));
 		recording.end();
-		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
+		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.V8_0)) {
 			assertRunningMongoDB(running);
 		}
 	}
@@ -214,7 +214,7 @@ public class CustomizationsTest {
 			}
 		};
 		recording.end();
-		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
+		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.V8_0)) {
 			assertRunningMongoDB(running);
 		}
 	}
@@ -233,7 +233,7 @@ public class CustomizationsTest {
 					.initializedWith(SystemEnv.of(ImmutableMap.of(key, pathAsString)));
 			}
 		};
-		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
+		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.V8_0)) {
 			assertRunningMongoDB(running);
 		}
 	}
@@ -252,7 +252,7 @@ public class CustomizationsTest {
 					.initializedWith(SystemProperties.of(ImmutableMap.of(key, pathAsString)));
 			}
 		};
-		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
+		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.V8_0)) {
 			assertRunningMongoDB(running);
 		}
 	}
@@ -285,7 +285,7 @@ public class CustomizationsTest {
 			}
 		};
 		recording.end();
-		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
+		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.V8_0)) {
 			assertRunningMongoDB(running);
 		}
 	}
@@ -309,7 +309,7 @@ public class CustomizationsTest {
 			}
 		};
 		recording.end();
-		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
+		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.V8_0)) {
 			assertRunningMongoDB(running);
 		}
 	}
@@ -325,7 +325,7 @@ public class CustomizationsTest {
 			}
 		};
 
-		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.PRODUCTION)) {
+		try (TransitionWalker.ReachedState<RunningMongodProcess> running = mongod.start(Version.Main.V8_0)) {
 			ServerAddress serverAddress = serverAddress(running.current().getServerAddress());
 			try (MongoClient mongo = MongoClients.create("mongodb://" + serverAddress)) {
 				MongoDatabase db = mongo.getDatabase("test");

@@ -1,7 +1,13 @@
 ### Usage
-
+                                       
 ```java
 ${testStandard}
+```
+
+#### JUnit Test Template
+
+```java
+${mongoJUnit}
 ```
 
 #### Customize by Override
