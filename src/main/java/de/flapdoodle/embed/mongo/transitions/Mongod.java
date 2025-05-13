@@ -32,7 +32,9 @@ import de.flapdoodle.reverse.transitions.Derive;
 import de.flapdoodle.reverse.transitions.Start;
 import org.immutables.value.Value;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Consumer;
 
 @Value.Immutable
 public class Mongod implements Environment, WorkspaceDefaults, VersionAndPlatform, ProcessDefaults, CommandName, ExtractFileSet {
@@ -99,6 +101,18 @@ public class Mongod implements Environment, WorkspaceDefaults, VersionAndPlatfor
 		return transitions(version)
 			.walker()
 			.initState(StateID.of(RunningMongodProcess.class), listener);
+	}
+
+	@Value.Auxiliary
+	public void start(Version version, Consumer<RunningMongodProcess> withRunningMongod, Listener... listener) {
+		start(version, withRunningMongod, Arrays.asList(listener));
+	}
+
+	@Value.Auxiliary
+	public void start(Version version,  Consumer<RunningMongodProcess> withRunningMongod, Collection<Listener> listener) {
+		try(TransitionWalker.ReachedState<RunningMongodProcess> state = start(version, listener)) {
+			withRunningMongod.accept(state.current());
+		}
 	}
 
 	public static ImmutableMongod instance() {

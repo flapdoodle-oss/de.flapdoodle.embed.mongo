@@ -23,11 +23,16 @@ package de.flapdoodle.embed.mongo.transitions;
 import de.flapdoodle.embed.mongo.commands.MongoDumpArguments;
 import de.flapdoodle.embed.mongo.packageresolver.Command;
 import de.flapdoodle.embed.process.distribution.Version;
+import de.flapdoodle.reverse.Listener;
 import de.flapdoodle.reverse.StateID;
 import de.flapdoodle.reverse.TransitionWalker;
 import de.flapdoodle.reverse.Transitions;
 import de.flapdoodle.reverse.transitions.Start;
 import org.immutables.value.Value;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.function.Consumer;
 
 @Value.Immutable
 public class MongoDump implements Environment, WorkspaceDefaults, VersionAndPlatform, ProcessDefaults, CommandName, ExtractFileSet {
@@ -47,12 +52,32 @@ public class MongoDump implements Environment, WorkspaceDefaults, VersionAndPlat
 			);
 	}
 
-	public TransitionWalker.ReachedState<ExecutedMongoDumpProcess> start(Version version) {
+	@Value.Auxiliary
+	public TransitionWalker.ReachedState<ExecutedMongoDumpProcess> start(Version version, Listener... listener) {
 		return transitions(version)
 			.walker()
-			.initState(StateID.of(ExecutedMongoDumpProcess.class));
+			.initState(StateID.of(ExecutedMongoDumpProcess.class), listener);
 	}
 
+	@Value.Auxiliary
+	public TransitionWalker.ReachedState<ExecutedMongoDumpProcess> start(Version version, Collection<Listener> listener) {
+		return transitions(version)
+			.walker()
+			.initState(StateID.of(ExecutedMongoDumpProcess.class), listener);
+	}
+
+	@Value.Auxiliary
+	public void start(Version version, Consumer<ExecutedMongoDumpProcess> withRunningMongoDump, Listener... listener) {
+		start(version, withRunningMongoDump, Arrays.asList(listener));
+	}
+
+	@Value.Auxiliary
+	public void start(Version version,  Consumer<ExecutedMongoDumpProcess> withRunningMongoDump, Collection<Listener> listener) {
+		try(TransitionWalker.ReachedState<ExecutedMongoDumpProcess> state = start(version, listener)) {
+			withRunningMongoDump.accept(state.current());
+		}
+	}
+	
 	public static ImmutableMongoDump instance() {
 		return builder().build();
 	}

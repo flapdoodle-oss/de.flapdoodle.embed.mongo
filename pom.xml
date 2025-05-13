@@ -128,7 +128,7 @@
                     <dependency>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>extra-enforcer-rules</artifactId>
-                        <version>1.9.0</version>
+                        <version>1.10.0</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -524,12 +524,12 @@
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.process</artifactId>
-            <version>4.15.2</version>
+            <version>4.16.0</version>
         </dependency>
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo.packageresolver</artifactId>
-            <version>4.19.0</version>
+            <version>4.20.0</version>
         </dependency>
     </dependencies>
     <repositories>
