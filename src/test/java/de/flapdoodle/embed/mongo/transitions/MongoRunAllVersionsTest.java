@@ -20,11 +20,11 @@
  */
 package de.flapdoodle.embed.mongo.transitions;
 
-import de.flapdoodle.embed.mongo.Versions;
 import de.flapdoodle.embed.mongo.commands.MongoShellArguments;
 import de.flapdoodle.embed.mongo.commands.ServerAddress;
 import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion;
 import de.flapdoodle.embed.mongo.distribution.Version;
+import de.flapdoodle.embed.mongo.distribution.Versions;
 import de.flapdoodle.embed.mongo.packageresolver.Feature;
 import de.flapdoodle.embed.process.distribution.Distribution;
 import de.flapdoodle.os.CPUType;
@@ -45,6 +45,7 @@ import org.junit.runners.Parameterized.Parameters;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 /**
@@ -62,7 +63,7 @@ public class MongoRunAllVersionsTest {
 	public static Collection<Object[]> data() {
 		final Collection<Object[]> result = new ArrayList<>();
 		int unknownId = 0;
-		for (final de.flapdoodle.embed.process.distribution.Version version : Versions.testableVersions(Version.Main.class)
+		for (final de.flapdoodle.embed.process.distribution.Version version : EnumSet.of(Version.Main.V5_0, Version.Main.V6_0)
 			.stream()
 			.filter(it -> it.enabled(Feature.HAS_MONGO_SHELL_BINRAY))
 			.collect(Collectors.toList())) {

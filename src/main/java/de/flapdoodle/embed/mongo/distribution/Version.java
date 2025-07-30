@@ -386,7 +386,9 @@ public enum Version implements IFeatureAwareVersion, HasMongotoolsPackage {
 		V4_2(V4_2_23),
 		@Deprecated
 		V4_4(V4_4_18),
+		@Deprecated
 		V5_0(V5_0_31),
+		@Deprecated
 		V6_0(V6_0_25),
 		V7_0(V7_0_22),
 		@Deprecated
