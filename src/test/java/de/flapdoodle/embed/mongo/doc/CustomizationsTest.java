@@ -367,7 +367,7 @@ public class CustomizationsTest {
 
 		PackageFinderRules mongodPackageRules = PackageFinderRules.builder()
 			.addRules(PackageFinderRule.builder()
-				.match(PlatformMatch.withOs(CommonOS.Linux).withBitSize(BitSize.B64).withCpuType(CPUType.X86).withVersion(UbuntuVersion.Ubuntu_22_04)
+				.match(PlatformMatch.withOs(CommonOS.Linux).withBitSize(BitSize.B64).withCpuType(CPUType.X86).withVersion(UbuntuVersion.Ubuntu_24_04)
 					.andThen(DistributionMatch.any(VersionRange.of("8.0.0", "8.1.0"))
 					))
 				.finder(UrlTemplatePackageFinder.builder()
@@ -401,12 +401,12 @@ public class CustomizationsTest {
 
 		recording.end();
 
-		try (TransitionWalker.ReachedState<Package> reachedState = customizedInstance.transitions(Version.Main.V8_0)
+		try (TransitionWalker.ReachedState<Package> reachedState = customizedInstance.transitions(Version.V8_0_12)
 			.walker().initState(StateID.of(Package.class))) {
 			Package resolvedPackage = reachedState.current();
 
 			assertThat(resolvedPackage.url())
-				.isEqualTo("http://some-local-server/relativePath-8.0.9.tgz");
+				.isEqualTo("http://some-local-server/relativePath-8.0.12.tgz");
 		}
 	}
 

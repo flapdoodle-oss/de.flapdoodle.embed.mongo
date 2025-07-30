@@ -224,7 +224,7 @@ Mongod customizedInstance = Mongod.instance()
 
 PackageFinderRules mongodPackageRules = PackageFinderRules.builder()
   .addRules(PackageFinderRule.builder()
-    .match(PlatformMatch.withOs(CommonOS.Linux).withBitSize(BitSize.B64).withCpuType(CPUType.X86).withVersion(UbuntuVersion.Ubuntu_22_04)
+    .match(PlatformMatch.withOs(CommonOS.Linux).withBitSize(BitSize.B64).withCpuType(CPUType.X86).withVersion(UbuntuVersion.Ubuntu_24_04)
       .andThen(DistributionMatch.any(VersionRange.of("8.0.0", "8.1.0"))
       ))
     .finder(UrlTemplatePackageFinder.builder()
