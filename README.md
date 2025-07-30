@@ -57,7 +57,7 @@ We use http://www.apache.org/licenses/LICENSE-2.0
 	<dependency>
 		<groupId>de.flapdoodle.embed</groupId>
 		<artifactId>de.flapdoodle.embed.mongo</artifactId>
-		<version>4.20.1</version>
+		<version>4.21.0</version>
 	</dependency>
 
 To enable logging you must choose some matching adapter for [slf4j.org](https://www.slf4j.org/) This projects uses slf4j-api version 1.7.xx.
@@ -65,6 +65,10 @@ To enable logging you must choose some matching adapter for [slf4j.org](https://
 ### Changelog
 
 #### Unreleased
+
+#### 4.21.0
+
+- dep updates, latest mongod versions
 
 #### 4.20.1
 
