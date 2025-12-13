@@ -66,6 +66,8 @@ To enable logging you must choose some matching adapter for [slf4j.org](https://
 
 #### Unreleased
  
+#### 4.22.0
+
 - dep updates, latest mongod versions (8.2.2, 8.0.16, 7.0.26, ...) 
 
 #### 4.21.0
