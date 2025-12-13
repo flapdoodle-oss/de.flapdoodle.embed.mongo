@@ -76,6 +76,7 @@
                 <version>2.17.1</version>
                 <configuration>
                     <generateBackupPoms>false</generateBackupPoms>
+                    <ignoredVersions>(?i).*-(alpha|beta|m|rc)([-.]?\d+)?</ignoredVersions>
                 </configuration>
             </plugin>
 
@@ -138,7 +139,7 @@
                     <dependency>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>extra-enforcer-rules</artifactId>
-                        <version>1.10.0</version>
+                        <version>1.11.0</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -420,7 +421,7 @@
             org.slf4j
         </osgi.import>
         <junit.version>5.13.0</junit.version>
-        <immutables.version>2.11.1</immutables.version>
+        <immutables.version>2.12.0</immutables.version>
         <!-- eclipse apt switch -->
         <m2e.apt.activation>jdt_apt</m2e.apt.activation>
     </properties>
@@ -460,7 +461,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.26.3</version>
+            <version>3.27.6</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -513,7 +514,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>33.4.8-jre</version>
+            <version>33.5.0-jre</version>
             <scope>test</scope>
         </dependency>
 
@@ -539,7 +540,7 @@
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo.packageresolver</artifactId>
-            <version>4.21.0</version>
+            <version>4.22.0</version>
         </dependency>
     </dependencies>
 </project>

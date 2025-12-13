@@ -282,6 +282,7 @@ public enum Version implements IFeatureAwareVersion, HasMongotoolsPackage {
 	V7_0_17("7.0.17", MongotoolsVersion.Main.V100_8),
 	V7_0_20("7.0.20", MongotoolsVersion.Main.V100_8),
 	V7_0_22("7.0.22", MongotoolsVersion.Main.V100_8),
+	V7_0_26("7.0.26", MongotoolsVersion.Main.V100_8),
 
 	V8_0_0_RC3("8.0.0-rc3", MongotoolsVersion.Main.V100_8),
 	V8_0_0_RC7("8.0.0-rc7", MongotoolsVersion.Main.V100_8),
@@ -292,8 +293,10 @@ public enum Version implements IFeatureAwareVersion, HasMongotoolsPackage {
 	V8_0_5("8.0.5", MongotoolsVersion.Main.V100_8),
 	V8_0_9("8.0.9", MongotoolsVersion.Main.V100_8),
 	V8_0_12("8.0.12", MongotoolsVersion.Main.V100_8),
+	V8_0_16("8.0.16", MongotoolsVersion.Main.V100_8),
 
 	V8_1_2("8.1.2", MongotoolsVersion.Main.V100_8),
+	V8_2_2("8.2.2", MongotoolsVersion.Main.V100_9),
 
 	@Deprecated
   LATEST_NIGHTLY("latest"),
@@ -390,11 +393,12 @@ public enum Version implements IFeatureAwareVersion, HasMongotoolsPackage {
 		V5_0(V5_0_31),
 		@Deprecated
 		V6_0(V6_0_25),
-		V7_0(V7_0_22),
+		V7_0(V7_0_26),
 		@Deprecated
 		V8_0_RC(V8_0_0_RC9),
-		V8_0(V8_0_12),
+		V8_0(V8_0_16),
 		V8_1(V8_1_2),
+		V8_2(V8_2_2),
 
 		@Deprecated
 		LEGACY(V3_6),
