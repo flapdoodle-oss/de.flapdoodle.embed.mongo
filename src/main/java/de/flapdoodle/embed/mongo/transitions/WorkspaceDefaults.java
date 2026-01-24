@@ -34,7 +34,8 @@ import org.immutables.value.Value;
 public interface WorkspaceDefaults {
 	@Value.Default
 	default InitTempDirectory initTempDirectory() {
-		return InitTempDirectory.withPlatformTempRandomSubDir();
+		return InitTempDirectory.withPlatformTempRandomSubDir()
+			.withForceDelete(true);
 	}
 
 	@Value.Default

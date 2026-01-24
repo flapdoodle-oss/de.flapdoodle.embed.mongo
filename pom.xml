@@ -420,8 +420,8 @@
             org.apache.commons.io,
             org.slf4j
         </osgi.import>
-        <junit.version>5.13.0</junit.version>
-        <immutables.version>2.12.0</immutables.version>
+        <junit.version>5.14.1</junit.version>
+        <immutables.version>2.12.1</immutables.version>
         <!-- eclipse apt switch -->
         <m2e.apt.activation>jdt_apt</m2e.apt.activation>
     </properties>
@@ -535,12 +535,12 @@
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.process</artifactId>
-            <version>4.17.0</version>
+            <version>4.18.0</version>
         </dependency>
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo.packageresolver</artifactId>
-            <version>4.23.0</version>
+            <version>4.23.1</version>
         </dependency>
     </dependencies>
 </project>
