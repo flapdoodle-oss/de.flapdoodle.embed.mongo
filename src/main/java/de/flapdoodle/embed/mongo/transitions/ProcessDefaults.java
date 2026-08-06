@@ -27,11 +27,11 @@ import de.flapdoodle.embed.process.io.ProcessOutput;
 import de.flapdoodle.embed.process.types.Name;
 import de.flapdoodle.embed.process.types.ProcessConfig;
 import de.flapdoodle.embed.process.types.ProcessEnv;
-import de.flapdoodle.reverse.Transition;
-import de.flapdoodle.reverse.Transitions;
-import de.flapdoodle.reverse.transitions.Derive;
-import de.flapdoodle.reverse.transitions.ImmutableStart;
-import de.flapdoodle.reverse.transitions.Start;
+import de.flapdoodle.commons.reverse.Transition;
+import de.flapdoodle.commons.reverse.Transitions;
+import de.flapdoodle.commons.reverse.transitions.Derive;
+import de.flapdoodle.commons.reverse.transitions.ImmutableStart;
+import de.flapdoodle.commons.reverse.transitions.Start;
 import org.immutables.value.Value;
 
 import java.util.Collections;

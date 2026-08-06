@@ -25,10 +25,10 @@ import de.flapdoodle.embed.mongo.transitions.Mongod;
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
 import de.flapdoodle.embed.mongo.types.DatabaseDir;
 import de.flapdoodle.embed.mongo.util.FileUtils;
-import de.flapdoodle.reverse.Listener;
-import de.flapdoodle.reverse.StateID;
-import de.flapdoodle.reverse.TransitionWalker;
-import de.flapdoodle.types.Try;
+import de.flapdoodle.commons.reverse.Listener;
+import de.flapdoodle.commons.reverse.StateID;
+import de.flapdoodle.commons.reverse.TransitionWalker;
+import de.flapdoodle.commons.types.Try;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 

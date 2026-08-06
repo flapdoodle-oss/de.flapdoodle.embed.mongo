@@ -25,10 +25,10 @@ import de.flapdoodle.embed.process.io.directories.TempDir;
 import de.flapdoodle.embed.process.transitions.Directories;
 import de.flapdoodle.embed.process.transitions.InitTempDirectory;
 import de.flapdoodle.embed.process.types.ProcessWorkingDir;
-import de.flapdoodle.reverse.Transition;
-import de.flapdoodle.reverse.Transitions;
-import de.flapdoodle.reverse.transitions.Derive;
-import de.flapdoodle.reverse.transitions.Start;
+import de.flapdoodle.commons.reverse.Transition;
+import de.flapdoodle.commons.reverse.Transitions;
+import de.flapdoodle.commons.reverse.transitions.Derive;
+import de.flapdoodle.commons.reverse.transitions.Start;
 import org.immutables.value.Value;
 
 public interface WorkspaceDefaults {

@@ -23,9 +23,9 @@ package de.flapdoodle.embed.mongo.transitions;
 import de.flapdoodle.embed.mongo.commands.MongoToolsArguments;
 import de.flapdoodle.embed.mongo.commands.ServerAddress;
 import de.flapdoodle.embed.process.types.ProcessArguments;
-import de.flapdoodle.reverse.State;
-import de.flapdoodle.reverse.StateID;
-import de.flapdoodle.reverse.StateLookup;
+import de.flapdoodle.commons.reverse.State;
+import de.flapdoodle.commons.reverse.StateID;
+import de.flapdoodle.commons.reverse.StateLookup;
 import org.immutables.value.Value;
 
 import java.util.List;

@@ -20,17 +20,17 @@
  */
 package de.flapdoodle.embed.mongo.transitions;
 
-import de.flapdoodle.checks.Preconditions;
+import de.flapdoodle.commons.checks.Preconditions;
 import de.flapdoodle.embed.mongo.commands.MongosArguments;
 import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion;
 import de.flapdoodle.embed.process.distribution.Version;
 import de.flapdoodle.embed.process.types.ProcessArguments;
 import de.flapdoodle.os.Platform;
-import de.flapdoodle.reverse.State;
-import de.flapdoodle.reverse.StateID;
-import de.flapdoodle.reverse.StateLookup;
-import de.flapdoodle.reverse.naming.HasLabel;
+import de.flapdoodle.commons.reverse.State;
+import de.flapdoodle.commons.reverse.StateID;
+import de.flapdoodle.commons.reverse.StateLookup;
+import de.flapdoodle.commons.reverse.naming.HasLabel;
 import org.immutables.value.Value;
 
 import java.util.List;

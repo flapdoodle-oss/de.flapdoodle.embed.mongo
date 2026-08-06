@@ -46,7 +46,7 @@ public abstract class Net {
 		if (getBindIp().isPresent()) {
 			return InetAddress.getByName(getBindIp().get());
 		}
-		return de.flapdoodle.net.Net.getLocalHost();
+		return de.flapdoodle.commons.net.Net.getLocalHost();
 	}
 
 	public static Net of(String bindIp, int port, boolean ipv6) {
@@ -63,9 +63,9 @@ public abstract class Net {
 
 	public static Net defaults() {
 		try {
-			InetAddress localHost = de.flapdoodle.net.Net.getLocalHost();
-			int freeServerPort = de.flapdoodle.net.Net.freeServerPort(localHost);
-			boolean localhostIsIPv6 = de.flapdoodle.net.Net.localhostIsIPv6();
+			InetAddress localHost = de.flapdoodle.commons.net.Net.getLocalHost();
+			int freeServerPort = de.flapdoodle.commons.net.Net.freeServerPort(localHost);
+			boolean localhostIsIPv6 = de.flapdoodle.commons.net.Net.localhostIsIPv6();
 
 			return builder()
 				.port(freeServerPort)

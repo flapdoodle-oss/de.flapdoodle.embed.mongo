@@ -66,6 +66,9 @@ To enable logging you must choose some matching adapter for [slf4j.org](https://
 
 #### Unreleased
 
+- upgrade to flapdoodle commons
+- dep updates
+
 #### 4.33.0
 
 - mongodb 8.3 and 8.2, ubuntu 26.04 detection

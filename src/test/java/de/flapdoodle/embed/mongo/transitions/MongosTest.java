@@ -28,9 +28,9 @@ import de.flapdoodle.embed.mongo.commands.*;
 import de.flapdoodle.embed.mongo.config.Storage;
 import de.flapdoodle.embed.process.distribution.Version;
 import de.flapdoodle.embed.process.io.ProcessOutput;
-import de.flapdoodle.reverse.StateID;
-import de.flapdoodle.reverse.TransitionWalker;
-import de.flapdoodle.reverse.transitions.Start;
+import de.flapdoodle.commons.reverse.StateID;
+import de.flapdoodle.commons.reverse.TransitionWalker;
+import de.flapdoodle.commons.reverse.transitions.Start;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
 

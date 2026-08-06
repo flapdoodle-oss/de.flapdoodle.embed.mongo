@@ -31,9 +31,9 @@ import de.flapdoodle.embed.mongo.transitions.Mongod;
 import de.flapdoodle.embed.mongo.transitions.Mongos;
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
 import de.flapdoodle.embed.mongo.transitions.RunningMongosProcess;
-import de.flapdoodle.reverse.StateID;
-import de.flapdoodle.reverse.TransitionWalker;
-import de.flapdoodle.reverse.transitions.Start;
+import de.flapdoodle.commons.reverse.StateID;
+import de.flapdoodle.commons.reverse.TransitionWalker;
+import de.flapdoodle.commons.reverse.transitions.Start;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
 

@@ -24,7 +24,7 @@ import com.mongodb.*;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
-import de.flapdoodle.checks.Preconditions;
+import de.flapdoodle.commons.checks.Preconditions;
 import de.flapdoodle.embed.mongo.commands.MongodArguments;
 import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
@@ -32,8 +32,8 @@ import de.flapdoodle.embed.mongo.transitions.ImmutableMongod;
 import de.flapdoodle.embed.mongo.transitions.Mongod;
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
 import de.flapdoodle.embed.mongo.types.DatabaseDir;
-import de.flapdoodle.reverse.TransitionWalker;
-import de.flapdoodle.reverse.transitions.Start;
+import de.flapdoodle.commons.reverse.TransitionWalker;
+import de.flapdoodle.commons.reverse.transitions.Start;
 import org.bson.Document;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -80,7 +80,7 @@ public class AccessControlAndListCollectionsActionTest {
 	@ParameterizedTest
 	@MethodSource(value = "versions")
 	void createUserAndCollectionsWithoutAuthFirst(Version.Main version) throws IOException {
-		int port = de.flapdoodle.net.Net.freeServerPort();
+		int port = de.flapdoodle.commons.net.Net.freeServerPort();
 
 		Path databaseDir = temp.resolve("database");
 		Files.createDirectory(databaseDir);
@@ -174,7 +174,7 @@ public class AccessControlAndListCollectionsActionTest {
 	@ParameterizedTest
 	@MethodSource(value = "versions")
 	void createUserAndCollectionsWithAuthInSingleRun(Version.Main version) throws IOException {
-		int port = de.flapdoodle.net.Net.freeServerPort();
+		int port = de.flapdoodle.commons.net.Net.freeServerPort();
 
 		Path databaseDir = temp.resolve("database");
 		Files.createDirectory(databaseDir);

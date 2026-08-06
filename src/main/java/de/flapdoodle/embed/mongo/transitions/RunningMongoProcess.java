@@ -30,7 +30,7 @@ import de.flapdoodle.embed.process.runtime.Processes;
 import de.flapdoodle.embed.process.types.RunningProcessFactory;
 import de.flapdoodle.embed.process.types.RunningProcessImpl;
 import de.flapdoodle.os.Platform;
-import de.flapdoodle.types.Try;
+import de.flapdoodle.commons.types.Try;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

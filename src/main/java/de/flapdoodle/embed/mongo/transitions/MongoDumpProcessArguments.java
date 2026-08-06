@@ -21,8 +21,8 @@
 package de.flapdoodle.embed.mongo.transitions;
 
 import de.flapdoodle.embed.mongo.commands.MongoDumpArguments;
-import de.flapdoodle.reverse.StateID;
-import de.flapdoodle.reverse.naming.HasLabel;
+import de.flapdoodle.commons.reverse.StateID;
+import de.flapdoodle.commons.reverse.naming.HasLabel;
 import org.immutables.value.Value;
 
 @Value.Immutable

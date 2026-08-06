@@ -32,7 +32,7 @@ import de.flapdoodle.embed.process.distribution.Distribution;
 import de.flapdoodle.os.CPUType;
 import de.flapdoodle.os.CommonOS;
 import de.flapdoodle.os.OSType;
-import de.flapdoodle.reverse.TransitionWalker;
+import de.flapdoodle.commons.reverse.TransitionWalker;
 import org.bson.Document;
 import org.junit.After;
 import org.junit.Assume;

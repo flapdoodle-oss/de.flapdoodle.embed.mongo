@@ -23,11 +23,11 @@ package de.flapdoodle.embed.mongo.transitions;
 import de.flapdoodle.embed.mongo.commands.MongoDumpArguments;
 import de.flapdoodle.embed.mongo.packageresolver.Command;
 import de.flapdoodle.embed.process.distribution.Version;
-import de.flapdoodle.reverse.Listener;
-import de.flapdoodle.reverse.StateID;
-import de.flapdoodle.reverse.TransitionWalker;
-import de.flapdoodle.reverse.Transitions;
-import de.flapdoodle.reverse.transitions.Start;
+import de.flapdoodle.commons.reverse.Listener;
+import de.flapdoodle.commons.reverse.StateID;
+import de.flapdoodle.commons.reverse.TransitionWalker;
+import de.flapdoodle.commons.reverse.Transitions;
+import de.flapdoodle.commons.reverse.transitions.Start;
 import org.immutables.value.Value;
 
 import java.util.Arrays;

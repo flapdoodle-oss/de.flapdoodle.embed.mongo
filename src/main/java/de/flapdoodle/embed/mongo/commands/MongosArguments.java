@@ -20,7 +20,7 @@
  */
 package de.flapdoodle.embed.mongo.commands;
 
-import de.flapdoodle.checks.Preconditions;
+import de.flapdoodle.commons.checks.Preconditions;
 import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion;
 import de.flapdoodle.embed.mongo.packageresolver.Feature;

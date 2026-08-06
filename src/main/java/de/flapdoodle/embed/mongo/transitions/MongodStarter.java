@@ -24,8 +24,8 @@ import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.process.config.SupportConfig;
 import de.flapdoodle.embed.process.types.RunningProcessFactory;
 import de.flapdoodle.os.Platform;
-import de.flapdoodle.reverse.StateID;
-import de.flapdoodle.reverse.naming.HasLabel;
+import de.flapdoodle.commons.reverse.StateID;
+import de.flapdoodle.commons.reverse.naming.HasLabel;
 import org.immutables.value.Value;
 
 @Value.Immutable                  

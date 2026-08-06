@@ -33,12 +33,12 @@ import de.flapdoodle.embed.process.store.ExtractedFileSetStore;
 import de.flapdoodle.embed.process.store.LocalDownloadCache;
 import de.flapdoodle.embed.process.transitions.DownloadPackage;
 import de.flapdoodle.embed.process.transitions.ExtractPackage;
-import de.flapdoodle.reverse.StateID;
-import de.flapdoodle.reverse.Transition;
-import de.flapdoodle.reverse.Transitions;
-import de.flapdoodle.reverse.transitions.Derive;
-import de.flapdoodle.reverse.transitions.Join;
-import de.flapdoodle.reverse.transitions.Start;
+import de.flapdoodle.commons.reverse.StateID;
+import de.flapdoodle.commons.reverse.Transition;
+import de.flapdoodle.commons.reverse.Transitions;
+import de.flapdoodle.commons.reverse.transitions.Derive;
+import de.flapdoodle.commons.reverse.transitions.Join;
+import de.flapdoodle.commons.reverse.transitions.Start;
 import org.immutables.value.Value;
 
 import java.nio.file.Paths;

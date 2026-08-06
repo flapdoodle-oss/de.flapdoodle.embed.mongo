@@ -27,9 +27,9 @@ import de.flapdoodle.embed.mongo.types.DatabaseDir;
 import de.flapdoodle.embed.process.distribution.Version;
 import de.flapdoodle.embed.process.io.directories.TempDir;
 import de.flapdoodle.embed.process.transitions.Directories;
-import de.flapdoodle.reverse.*;
-import de.flapdoodle.reverse.transitions.Derive;
-import de.flapdoodle.reverse.transitions.Start;
+import de.flapdoodle.commons.reverse.*;
+import de.flapdoodle.commons.reverse.transitions.Derive;
+import de.flapdoodle.commons.reverse.transitions.Start;
 import org.immutables.value.Value;
 
 import java.util.Arrays;
