@@ -1,6 +1,3 @@
-Please make your vote: [JDK Support Poll](https://github.com/flapdoodle-oss/de.flapdoodle.embed.mongo/discussions/538)
-
-
 # Make Peace, No War!
 
 # Organization Flapdoodle OSS
