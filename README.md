@@ -1,13 +1,15 @@
 Please make your vote: [JDK Support Poll](https://github.com/flapdoodle-oss/de.flapdoodle.embed.mongo/discussions/538)
 
-[![Build Status](https://travis-ci.org/flapdoodle-oss/de.flapdoodle.embed.mongo.svg?branch=embed-mongo-4.x)](https://travis-ci.org/flapdoodle-oss/de.flapdoodle.embed.mongo)
-[![Maven Central](https://img.shields.io/maven-central/v/de.flapdoodle.embed/de.flapdoodle.embed.mongo.svg)](https://maven-badges.herokuapp.com/maven-central/de.flapdoodle.embed/de.flapdoodle.embed.mongo)
 
 # Make Peace, No War!
 
 # Organization Flapdoodle OSS
 
 We are a github organization. You are invited to participate. Every version < 4.x.x is considered as legacy.
+
+## Upcoming changes
+
+We are moving to [Codeberg](https://codeberg.org/flapdoodle-oss/de.flapdoodle.embed.mongo).
 
 # Embedded MongoDB
 
@@ -53,6 +55,8 @@ We use http://www.apache.org/licenses/LICENSE-2.0
 - [Customizations](docs/Customizations.md)
 
 ### Maven
+
+![Maven Central](https://img.shields.io/maven-central/v/de.flapdoodle.embed/de.flapdoodle.embed.mongo.svg)
 
 	<dependency>
 		<groupId>de.flapdoodle.embed</groupId>
